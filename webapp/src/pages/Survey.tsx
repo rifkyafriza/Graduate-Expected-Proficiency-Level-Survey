@@ -129,20 +129,55 @@ const Survey: React.FC = () => {
       }
     }
 
-    // Validate bloom level selection for section steps
-    if (currentStep >= 1 && currentStep <= groupedSections.length) {
-      const group = groupedSections[currentStep - 1];
-      const missing = group.sections.filter((sec: any) => !answers[sec.id]?.bloom);
-      if (missing.length > 0) {
-        alert(`Mohon pilih Target Level (C1-C6) untuk: ${missing.map((s: any) => s.id + ' - ' + s.title).join(', ')}`);
-        return;
-      }
-    }
-
     if (!isFinalStep) {
       setSearchParams({ step: (currentStep + 1).toString() });
       topRef.current?.scrollIntoView({ behavior: 'smooth' });
     } else {
+      // Comprehensive validation before submit
+      // 1. Check respondent data
+      if (!respondentData.name || !respondentData.email) {
+        alert('Mohon isi Nama Lengkap dan Email pada halaman Data Diri.');
+        setSearchParams({ step: '0' });
+        topRef.current?.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      if (packageId === 'P2' && !respondentData.graduationYear) {
+        alert('Mohon isi Tahun Kelulusan pada halaman Data Diri.');
+        setSearchParams({ step: '0' });
+        topRef.current?.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+
+      // 2. Check all sections have bloom level selected
+      const missingBlooms: string[] = [];
+      let firstMissingPage = -1;
+      groupedSections.forEach((group, gIdx) => {
+        group.sections.forEach((sec: any) => {
+          if (!answers[sec.id]?.bloom) {
+            missingBlooms.push(`${sec.id} - ${sec.title}`);
+            if (firstMissingPage === -1) firstMissingPage = gIdx + 1;
+          }
+        });
+      });
+      if (missingBlooms.length > 0) {
+        alert(`Mohon pilih Target Level (C1-C6) untuk:\n${missingBlooms.join('\n')}`);
+        setSearchParams({ step: firstMissingPage.toString() });
+        topRef.current?.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+
+      // 3. Check all open questions are answered
+      if (hasOpenQuestions) {
+        const missingOpen = survey.open_questions.filter((q: any) => !openAnswers[q.id]?.trim());
+        if (missingOpen.length > 0) {
+          alert(`Mohon jawab semua pertanyaan terbuka:\n${missingOpen.map((q: any) => `${q.id}. ${q.text.substring(0, 60)}...`).join('\n')}`);
+          const openStep = 1 + groupedSections.length;
+          setSearchParams({ step: openStep.toString() });
+          topRef.current?.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+      }
+
       setSubmitting(true);
       try {
         const responseData = {
@@ -461,20 +496,57 @@ const Survey: React.FC = () => {
       </div>
 
       {/* Navigation */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
         <button
           className="btn btn-outline"
           onClick={handlePrev}
-          style={{ visibility: currentStep === 0 ? 'hidden' : 'visible', padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+          style={{ visibility: currentStep === 0 ? 'hidden' : 'visible', padding: '0.5rem 1rem', fontSize: '0.9rem', minWidth: '140px' }}
           disabled={submitting}
         >
           <ChevronLeft size={16} /> Sebelumnya
         </button>
 
+        {/* Page Number Buttons */}
+        <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', justifyContent: 'center', flex: 1, padding: '0 0.5rem' }}>
+          {Array.from({ length: totalSteps }, (_, i) => {
+            const isActive = i === currentStep;
+            const label = i === 0 ? 'Data' : i <= groupedSections.length ? i.toString() : 'Open';
+            return (
+              <button
+                key={i}
+                onClick={() => {
+                  setSearchParams({ step: i.toString() });
+                  topRef.current?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                disabled={submitting}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  border: `2px solid ${isActive ? 'var(--primary)' : 'var(--border-color)'}`,
+                  background: isActive ? 'var(--primary)' : 'transparent',
+                  color: isActive ? 'white' : 'var(--text-muted)',
+                  fontSize: '0.75rem',
+                  fontWeight: isActive ? 700 : 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0
+                }}
+                title={i === 0 ? 'Data Diri' : i <= groupedSections.length ? `Section ${groupedSections[i - 1].id}` : 'Pertanyaan Terbuka'}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
         <button
           className="btn btn-primary"
           onClick={handleNext}
-          style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+          style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', minWidth: '140px' }}
           disabled={submitting}
         >
           {isFinalStep ? (

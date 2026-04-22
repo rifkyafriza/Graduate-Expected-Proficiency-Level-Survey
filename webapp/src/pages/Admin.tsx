@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { 
-  Box, Container, Typography, Card, CardContent, CardHeader, 
+import {
+  Box, Container, Typography, Card, CardContent, CardHeader,
   Tabs, Tab, Button, CircularProgress, Alert, Paper,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   TextField, IconButton, Divider
@@ -8,8 +8,8 @@ import {
 import { Download, Save, Trash2, Plus, CheckCircle2, Server } from 'lucide-react';
 import surveysJsonData from '../data/surveys.json';
 import { supabase } from '../lib/supabase';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   ResponsiveContainer, Legend
 } from 'recharts';
 
@@ -33,7 +33,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState<ResponseData[]>([]);
   const [error, setError] = useState('');
-  
+
   const [surveysConfig, setSurveysConfig] = useState<any[]>([]);
   const [savingConfig, setSavingConfig] = useState(false);
   const [backupStatus, setBackupStatus] = useState<string | null>(null);
@@ -84,25 +84,104 @@ export default function Admin() {
 
   const handleExportCSV = () => {
     if (results.length === 0) return;
-    
-    const escapeCSV = (val: string) => `"${String(val).replace(/"/g, '""')}"`;
-    const headers = ['ID', 'Package', 'Name', 'Email', 'Institution', 'Created At', 'Answers JSON'];
-    const rows = results.map(r => [
-      r.id,
-      r.package_id,
-      escapeCSV(r.respondent_data?.name || r.respondent_data?.nama || ''),
-      escapeCSV(r.respondent_data?.email || ''),
-      escapeCSV(r.respondent_data?.institution || r.respondent_data?.instansi || ''),
-      escapeCSV(r.created_at),
-      escapeCSV(JSON.stringify(r.answers))
-    ].join(','));
-    
-    const csvContent = [headers.join(','), ...rows].join('\n');
+
+    const escapeCSV = (val: any) => `"${String(val ?? '').replace(/"/g, '""')}"`;
+
+    // Build dynamic column headers from survey config
+    // Collect all unique section IDs, question IDs, and open question IDs across all packages
+    const allSectionIds: string[] = [];
+    const allQuestionIds: Map<string, string[]> = new Map(); // sectionId -> questionIds
+    const allOpenQuestionIds: string[] = [];
+
+    (surveysJsonData as any[]).forEach((pkg: any) => {
+      if (pkg.sections) {
+        pkg.sections.forEach((sec: any) => {
+          if (!allSectionIds.includes(sec.id)) {
+            allSectionIds.push(sec.id);
+            const qIds = (sec.questions || []).map((q: any) => q.id);
+            allQuestionIds.set(sec.id, qIds);
+          } else {
+            // Merge question IDs if section appears in multiple packages
+            const existing = allQuestionIds.get(sec.id) || [];
+            (sec.questions || []).forEach((q: any) => {
+              if (!existing.includes(q.id)) existing.push(q.id);
+            });
+            allQuestionIds.set(sec.id, existing);
+          }
+        });
+      }
+      if (pkg.open_questions) {
+        pkg.open_questions.forEach((oq: any) => {
+          if (!allOpenQuestionIds.includes(oq.id)) {
+            allOpenQuestionIds.push(oq.id);
+          }
+        });
+      }
+    });
+
+    // Sort section IDs numerically
+    allSectionIds.sort((a, b) => {
+      const [a1, a2] = a.split('.').map(Number);
+      const [b1, b2] = b.split('.').map(Number);
+      if (a1 !== b1) return a1 - b1;
+      return (a2 || 0) - (b2 || 0);
+    });
+
+    // Build flat headers
+    const baseHeaders = ['ID', 'Package', 'Name', 'Email', 'Institution', 'Graduation Year', 'Created At'];
+    const dynamicHeaders: string[] = [];
+
+    allSectionIds.forEach(secId => {
+      dynamicHeaders.push(`${secId} Bloom`);
+      const qIds = allQuestionIds.get(secId) || [];
+      qIds.forEach(qId => {
+        dynamicHeaders.push(`${qId} Gap`);
+      });
+    });
+
+    allOpenQuestionIds.forEach(oqId => {
+      dynamicHeaders.push(`OQ ${oqId}`);
+    });
+
+    const headers = [...baseHeaders, ...dynamicHeaders];
+
+    // Build rows
+    const rows = results.map(r => {
+      const base = [
+        r.id,
+        escapeCSV(r.package_id),
+        escapeCSV(r.respondent_data?.name || r.respondent_data?.nama || ''),
+        escapeCSV(r.respondent_data?.email || ''),
+        escapeCSV(r.respondent_data?.institution || r.respondent_data?.instansi || ''),
+        escapeCSV(r.respondent_data?.graduationYear || ''),
+        escapeCSV(r.created_at)
+      ];
+
+      const dynamicValues: string[] = [];
+
+      allSectionIds.forEach(secId => {
+        const secAnswer = r.answers?.[secId];
+        dynamicValues.push(escapeCSV(secAnswer?.bloom || ''));
+        const qIds = allQuestionIds.get(secId) || [];
+        qIds.forEach(qId => {
+          dynamicValues.push(escapeCSV(secAnswer?.questions?.[qId] || ''));
+        });
+      });
+
+      const openQs = r.answers?.open_questions || {};
+      allOpenQuestionIds.forEach(oqId => {
+        dynamicValues.push(escapeCSV(openQs[oqId] || ''));
+      });
+
+      return [...base, ...dynamicValues].join(',');
+    });
+
+    const csvContent = [headers.map(h => escapeCSV(h)).join(','), ...rows].join('\n');
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `survey_results_${new Date().toISOString().slice(0,10)}.csv`;
+    link.download = `survey_results_${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -119,7 +198,7 @@ export default function Admin() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `survey_backup_${new Date().toISOString().slice(0,10)}.json`;
+      link.download = `survey_backup_${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -168,9 +247,9 @@ export default function Admin() {
       'P2': 'Alumni',
       'P3': 'Dosen'
     };
-    
+
     const bloomMap: Record<string, number> = {
-      'C1': 0, 'C2': 1, 'C3': 2, 'C4': 3, 'C5': 4, 'C6': 5
+      'C1': 1, 'C2': 2, 'C3': 3, 'C4': 4, 'C5': 5, 'C6': 6
     };
 
     const sectionStats: Record<string, any> = {};
@@ -183,7 +262,7 @@ export default function Admin() {
         if (secId !== 'open_questions') {
           const bloomStr = r.answers[secId]?.bloom;
           const bloomVal = bloomStr ? bloomMap[bloomStr] : null;
-          
+
           if (bloomVal !== null && bloomVal !== undefined) {
             let sectionTotalScore = bloomVal; // Base bloom score
             let sectionComponentCount = 1;
@@ -194,10 +273,10 @@ export default function Admin() {
                 let qScore = bloomVal;
                 if (val === '-') qScore -= 1;
                 else if (val === '+') qScore += 1;
-                
+
                 // Enforce min 0, max 5
                 qScore = Math.max(0, Math.min(5, qScore));
-                
+
                 sectionTotalScore += qScore;
                 sectionComponentCount += 1;
               });
@@ -264,9 +343,9 @@ export default function Admin() {
         }
       });
     });
-    
+
     return Object.keys(sectionCounts)
-      .sort((a,b) => parseInt(a) - parseInt(b))
+      .sort((a, b) => parseInt(a) - parseInt(b))
       .map(major => ({
         name: `Section ${major}`,
         Kurang: sectionCounts[major]['-'],
@@ -352,7 +431,7 @@ export default function Admin() {
               </Button>
             </Box>
           </Box>
-          
+
           <Box sx={{ mb: 4 }}>
             <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white', borderRadius: 2, boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
               <CardHeader title="Expected Proficiency Level by Section" />
@@ -363,9 +442,9 @@ export default function Admin() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                       <XAxis dataKey="name" stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                       <YAxis domain={[0, 5]} stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                      <RechartsTooltip 
+                      <RechartsTooltip
                         contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: 'white' }}
-                        cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }} 
+                        cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                       />
                       <Legend wrapperStyle={{ paddingTop: '20px' }} />
                       <Bar dataKey="Industri" fill="#ef4444" radius={[4, 4, 0, 0]} />
@@ -390,16 +469,16 @@ export default function Admin() {
                       <BarChart data={bloomData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                         <defs>
                           <linearGradient id="colorBloom" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.8} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                         <XAxis dataKey="name" stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                         <YAxis stroke="#94a3b8" allowDecimals={false} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                        <RechartsTooltip 
+                        <RechartsTooltip
                           contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: 'white' }}
-                          cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }} 
+                          cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                         />
                         <Bar dataKey="count" fill="url(#colorBloom)" radius={[6, 6, 0, 0]} />
                       </BarChart>
@@ -420,9 +499,9 @@ export default function Admin() {
                         <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                         <XAxis dataKey="name" stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                         <YAxis stroke="#94a3b8" allowDecimals={false} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                        <RechartsTooltip 
+                        <RechartsTooltip
                           contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: 'white' }}
-                          cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }} 
+                          cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                         />
                         <Legend wrapperStyle={{ paddingTop: '20px' }} />
                         <Bar dataKey="Kurang" stackId="a" fill={GAP_COLORS['-']} radius={[0, 0, 4, 4]} />
@@ -483,8 +562,8 @@ export default function Admin() {
         const pkgs = ['P1', 'P2', 'P3'];
         const blooms = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6'];
         const gaps = ['-', '0', '+'];
-        const sectionIds = ['1.1','1.2','1.3','1.4','2.1','2.2','2.3','2.4','2.5','3.1','3.2','3.3','4.1','4.2','4.3','4.4','4.5','4.6','5.1','5.3'];
-        const questionCounts: Record<string,number> = {'1.1':2,'1.2':4,'1.3':7,'1.4':2,'2.1':4,'2.2':3,'2.3':4,'2.4':6,'2.5':4,'3.1':4,'3.2':5,'3.3':2,'4.1':4,'4.2':4,'4.3':4,'4.4':4,'4.5':4,'4.6':4,'5.1':4,'5.3':3};
+        const sectionIds = ['1.1', '1.2', '1.3', '1.4', '2.1', '2.2', '2.3', '2.4', '2.5', '3.1', '3.2', '3.3', '4.1', '4.2', '4.3', '4.4', '4.5', '4.6', '5.1', '5.3'];
+        const questionCounts: Record<string, number> = { '1.1': 2, '1.2': 4, '1.3': 7, '1.4': 2, '2.1': 4, '2.2': 3, '2.3': 4, '2.4': 6, '2.5': 4, '3.1': 4, '3.2': 5, '3.3': 2, '4.1': 4, '4.2': 4, '4.3': 4, '4.4': 4, '4.5': 4, '4.6': 4, '5.1': 4, '5.3': 3 };
         const seededRandom = (i: number, j: number) => ((i * 13 + j * 7 + 3) % 100) / 100;
 
         const dummyResults: ResponseData[] = Array.from({ length: 50 }, (_, i) => {
@@ -492,27 +571,27 @@ export default function Admin() {
           const answers: any = {};
           sectionIds.forEach((sid, si) => {
             const bloom = blooms[Math.floor(seededRandom(i, si) * 6)];
-            const questions: Record<string,string> = {};
+            const questions: Record<string, string> = {};
             const qCount = questionCounts[sid] || 3;
             for (let qi = 0; qi < qCount; qi++) {
-              questions[`${sid}.${qi+1}`] = gaps[Math.floor(seededRandom(i + qi, si) * 3)];
+              questions[`${sid}.${qi + 1}`] = gaps[Math.floor(seededRandom(i + qi, si) * 3)];
             }
             answers[sid] = { bloom, questions };
           });
           return {
             id: i + 1,
             package_id: pkg,
-            respondent_data: { name: `Dummy User ${i+1}`, email: `dummy${i+1}@test.com` },
+            respondent_data: { name: `Dummy User ${i + 1}`, email: `dummy${i + 1}@test.com` },
             answers,
             created_at: new Date(2025, 0, 1 + i).toISOString()
           };
         });
 
         // Reuse visualization logic with dummy data
-        const pkgMap: Record<string,string> = { P1:'Industri', P2:'Alumni', P3:'Dosen' };
-        const bloomMap: Record<string,number> = { C1:0, C2:1, C3:2, C4:3, C5:4, C6:5 };
+        const pkgMap: Record<string, string> = { P1: 'Industri', P2: 'Alumni', P3: 'Dosen' };
+        const bloomMap: Record<string, number> = { C1: 0, C2: 1, C3: 2, C4: 3, C5: 4, C6: 5 };
 
-        const dummySectionStats: Record<string,any> = {};
+        const dummySectionStats: Record<string, any> = {};
         dummyResults.forEach(r => {
           const group = pkgMap[r.package_id];
           Object.keys(r.answers).forEach(secId => {
@@ -521,9 +600,9 @@ export default function Admin() {
             if (bloomVal !== null && bloomVal !== undefined) {
               let total = bloomVal, count = 1;
               const qs = r.answers[secId]?.questions;
-              if (qs) Object.values(qs).forEach((v: any) => { let s = bloomVal; if (v==='-') s-=1; else if (v==='+') s+=1; s=Math.max(0,Math.min(5,s)); total+=s; count++; });
+              if (qs) Object.values(qs).forEach((v: any) => { let s = bloomVal; if (v === '-') s -= 1; else if (v === '+') s += 1; s = Math.max(0, Math.min(5, s)); total += s; count++; });
               const avg = total / count;
-              if (!dummySectionStats[secId]) dummySectionStats[secId] = { name: secId, IndustriSum:0,IndustriCount:0,AlumniSum:0,AlumniCount:0,DosenSum:0,DosenCount:0 };
+              if (!dummySectionStats[secId]) dummySectionStats[secId] = { name: secId, IndustriSum: 0, IndustriCount: 0, AlumniSum: 0, AlumniCount: 0, DosenSum: 0, DosenCount: 0 };
               dummySectionStats[secId][`${group}Sum`] += avg;
               dummySectionStats[secId][`${group}Count`] += 1;
             }
@@ -531,18 +610,18 @@ export default function Admin() {
         });
         const dummyProfData = Object.values(dummySectionStats).map((s: any) => ({
           name: s.name,
-          Industri: s.IndustriCount > 0 ? Number((s.IndustriSum/s.IndustriCount).toFixed(2)) : 0,
-          Alumni: s.AlumniCount > 0 ? Number((s.AlumniSum/s.AlumniCount).toFixed(2)) : 0,
-          Dosen: s.DosenCount > 0 ? Number((s.DosenSum/s.DosenCount).toFixed(2)) : 0,
-        })).sort((a,b) => { const [a1,a2]=a.name.split('.').map(Number); const [b1,b2]=b.name.split('.').map(Number); return a1!==b1?a1-b1:(a2||0)-(b2||0); });
+          Industri: s.IndustriCount > 0 ? Number((s.IndustriSum / s.IndustriCount).toFixed(2)) : 0,
+          Alumni: s.AlumniCount > 0 ? Number((s.AlumniSum / s.AlumniCount).toFixed(2)) : 0,
+          Dosen: s.DosenCount > 0 ? Number((s.DosenSum / s.DosenCount).toFixed(2)) : 0,
+        })).sort((a, b) => { const [a1, a2] = a.name.split('.').map(Number); const [b1, b2] = b.name.split('.').map(Number); return a1 !== b1 ? a1 - b1 : (a2 || 0) - (b2 || 0); });
 
-        const dummyBloomCounts: Record<string,number> = {};
-        dummyResults.forEach(r => { Object.keys(r.answers).forEach(sid => { const b = r.answers[sid]?.bloom; if (b) dummyBloomCounts[b] = (dummyBloomCounts[b]||0)+1; }); });
+        const dummyBloomCounts: Record<string, number> = {};
+        dummyResults.forEach(r => { Object.keys(r.answers).forEach(sid => { const b = r.answers[sid]?.bloom; if (b) dummyBloomCounts[b] = (dummyBloomCounts[b] || 0) + 1; }); });
         const dummyBloomData = Object.keys(dummyBloomCounts).sort().map(k => ({ name: k, count: dummyBloomCounts[k] }));
 
-        const dummyGapCounts: Record<string,{'-':number,'0':number,'+':number}> = {};
-        dummyResults.forEach(r => { Object.keys(r.answers).forEach(sid => { const m = sid.split('.')[0]; if (!dummyGapCounts[m]) dummyGapCounts[m] = {'-':0,'0':0,'+':0}; const qs = r.answers[sid]?.questions; if (qs) Object.values(qs).forEach((v: any) => { if (dummyGapCounts[m][v as keyof typeof dummyGapCounts[typeof m]] !== undefined) dummyGapCounts[m][v as '-'|'0'|'+']++; }); }); });
-        const dummyGapData = Object.keys(dummyGapCounts).sort((a,b) => parseInt(a)-parseInt(b)).map(m => ({ name: `Section ${m}`, Kurang: dummyGapCounts[m]['-'], Sesuai: dummyGapCounts[m]['0'], Lebih: dummyGapCounts[m]['+'] }));
+        const dummyGapCounts: Record<string, { '-': number, '0': number, '+': number }> = {};
+        dummyResults.forEach(r => { Object.keys(r.answers).forEach(sid => { const m = sid.split('.')[0]; if (!dummyGapCounts[m]) dummyGapCounts[m] = { '-': 0, '0': 0, '+': 0 }; const qs = r.answers[sid]?.questions; if (qs) Object.values(qs).forEach((v: any) => { if (dummyGapCounts[m][v as keyof typeof dummyGapCounts[typeof m]] !== undefined) dummyGapCounts[m][v as '-' | '0' | '+']++; }); }); });
+        const dummyGapData = Object.keys(dummyGapCounts).sort((a, b) => parseInt(a) - parseInt(b)).map(m => ({ name: `Section ${m}`, Kurang: dummyGapCounts[m]['-'], Sesuai: dummyGapCounts[m]['0'], Lebih: dummyGapCounts[m]['+'] }));
 
         return (
           <Box>
@@ -608,10 +687,10 @@ export default function Admin() {
         <Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6" sx={{ color: 'white' }}>Survey Configuration</Typography>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              startIcon={savingConfig ? <CircularProgress size={20} color="inherit" /> : <Save size={20} />} 
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={savingConfig ? <CircularProgress size={20} color="inherit" /> : <Save size={20} />}
               onClick={handleSaveConfig}
               disabled={savingConfig}
             >
@@ -621,14 +700,14 @@ export default function Admin() {
 
           {surveysConfig.map((pkg, pIdx) => (
             <Card key={pIdx} sx={{ mb: 4, background: 'rgba(30, 41, 59, 0.7)', color: 'white' }}>
-              <CardHeader 
-                title={`Package: ${pkg.id}`} 
+              <CardHeader
+                title={`Package: ${pkg.id}`}
                 action={<IconButton color="error"><Trash2 size={20} /></IconButton>}
               />
               <CardContent>
-                <TextField 
-                  fullWidth 
-                  label="Package Title" 
+                <TextField
+                  fullWidth
+                  label="Package Title"
                   value={pkg.title}
                   onChange={(e) => handleConfigChange(pIdx, 'title', e.target.value)}
                   sx={{ mb: 3, input: { color: 'white' }, label: { color: '#94a3b8' } }}
@@ -639,23 +718,23 @@ export default function Admin() {
                 {pkg.sections.map((sec: any, sIdx: number) => (
                   <Paper key={sIdx} sx={{ p: 2, mb: 2, background: 'rgba(15, 23, 42, 0.6)', border: '1px solid #334155' }}>
                     <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                      <TextField 
-                        label="Section ID" 
+                      <TextField
+                        label="Section ID"
                         value={sec.id}
                         onChange={(e) => handleSectionChange(pIdx, sIdx, 'id', e.target.value)}
                         sx={{ width: '150px', input: { color: 'white' }, label: { color: '#94a3b8' } }}
                       />
-                      <TextField 
-                        fullWidth 
-                        label="Section Title" 
+                      <TextField
+                        fullWidth
+                        label="Section Title"
                         value={sec.title}
                         onChange={(e) => handleSectionChange(pIdx, sIdx, 'title', e.target.value)}
                         sx={{ input: { color: 'white' }, label: { color: '#94a3b8' } }}
                       />
                     </Box>
-                    <TextField 
-                      fullWidth 
-                      label="Description" 
+                    <TextField
+                      fullWidth
+                      label="Description"
                       value={sec.description}
                       onChange={(e) => handleSectionChange(pIdx, sIdx, 'description', e.target.value)}
                       multiline rows={2}
@@ -665,7 +744,7 @@ export default function Admin() {
                     <Typography variant="subtitle2" sx={{ color: '#94a3b8', mb: 1 }}>Questions in Section</Typography>
                     {sec.questions.map((q: any, qIdx: number) => (
                       <Box key={qIdx} sx={{ display: 'flex', gap: 2, mb: 1, alignItems: 'center' }}>
-                        <TextField 
+                        <TextField
                           value={q.id}
                           size="small"
                           onChange={(e) => {
@@ -675,8 +754,8 @@ export default function Admin() {
                           }}
                           sx={{ width: '100px', input: { color: 'white' } }}
                         />
-                        <TextField 
-                          fullWidth 
+                        <TextField
+                          fullWidth
                           value={q.text}
                           size="small"
                           onChange={(e) => {
@@ -711,7 +790,7 @@ export default function Admin() {
                 <Typography variant="h6" gutterBottom>Open Questions</Typography>
                 {pkg.open_questions && pkg.open_questions.map((oq: any, oIdx: number) => (
                   <Box key={oIdx} sx={{ display: 'flex', gap: 2, mb: 1, alignItems: 'center' }}>
-                    <TextField 
+                    <TextField
                       value={oq.id}
                       size="small"
                       onChange={(e) => {
@@ -721,8 +800,8 @@ export default function Admin() {
                       }}
                       sx={{ width: '100px', input: { color: 'white' } }}
                     />
-                    <TextField 
-                      fullWidth 
+                    <TextField
+                      fullWidth
                       value={oq.text}
                       size="small"
                       onChange={(e) => {
