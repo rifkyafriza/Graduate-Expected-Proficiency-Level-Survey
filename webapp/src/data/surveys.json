@@ -1,0 +1,1478 @@
+[
+  {
+    "id": "P1",
+    "title": "PENGGUNA LULUSAN",
+    "sections": [
+      {
+        "id": "1.1",
+        "title": "MATEMATIKA & SAINS DASAR",
+        "description": "Fondasi matematika dan ilmu pengetahuan alam untuk rekayasa",
+        "questions": [
+          {
+            "id": "1.1.a",
+            "text": "Matematika (kalkulus, aljabar linear, statistik, metode numerik)"
+          },
+          {
+            "id": "1.1.b",
+            "text": "Fisika dasar (mekanika, listrik dan magnet, gelombang, optik)"
+          }
+        ]
+      },
+      {
+        "id": "1.2",
+        "title": "PENGETAHUAN TEKNIK INTI",
+        "description": "Kompetensi teknik dasar yang menjadi pondasi rekayasa robotika",
+        "questions": [
+          {
+            "id": "1.1.c",
+            "text": "Ilmu komputasi dasar (logika, algoritma, struktur data)"
+          },
+          {
+            "id": "1.2.a",
+            "text": "Rangkaian listrik, elektronika analog/digital, dan instrumentasi"
+          },
+          {
+            "id": "1.2.b",
+            "text": "Pemrograman (C/C++, Python) dan sistem embedded / RTOS"
+          },
+          {
+            "id": "1.2.c",
+            "text": "Sistem kontrol (PID, kontrol diskret, kontrol adaptif)"
+          }
+        ]
+      },
+      {
+        "id": "1.3",
+        "title": "PENGETAHUAN TEKNIK LANJUT — ROBOTIKA & INDUSTRI",
+        "description": "Kompetensi teknis spesifik dalam bidang robotika dan otomasi industri",
+        "questions": [
+          {
+            "id": "1.2.d",
+            "text": "Mekanika (statika, dinamika), sensor, dan aktuator untuk robotika"
+          },
+          {
+            "id": "1.3.a",
+            "text": "Kinematika robot dan pemrograman robot industri (ABB, KUKA, Fanuc)"
+          },
+          {
+            "id": "1.3.b",
+            "text": "Robot kolaboratif (cobot) dan interaksi manusia-robot (HRI)"
+          },
+          {
+            "id": "1.3.c",
+            "text": "Computer Vision dan pengolahan citra (OpenCV, YOLO)"
+          },
+          {
+            "id": "1.3.d",
+            "text": "Kecerdasan Buatan & Machine Learning terapan untuk robotika"
+          },
+          {
+            "id": "1.3.e",
+            "text": "ROS/ROS2 dan pemrograman sistem berbasis middleware robotika"
+          },
+          {
+            "id": "1.3.f",
+            "text": "PLC, otomasi industri, IoT & Industry 4.0 (OPC-UA, SCADA, Digital Twin)"
+          }
+        ]
+      },
+      {
+        "id": "1.4",
+        "title": "ILMU SOSIAL & HUMANIORA",
+        "description": "Kompetensi non-teknis dan pembentukan karakter profesional",
+        "questions": [
+          {
+            "id": "1.4.a",
+            "text": "Agama"
+          },
+          {
+            "id": "1.4.b",
+            "text": "Pembentukan karakter (Pancasila, Kewarganegaraan)"
+          }
+        ]
+      },
+      {
+        "id": "2.1",
+        "title": "ANALYTIC REASONING AND PROBLEM SOLVING",
+        "description": "Penalaran analitis, pemodelan, dan rekomendasi solusi teknik",
+        "questions": [
+          {
+            "id": "2.1.1",
+            "text": "Mengidentifikasi & memformulasikan masalah dari situasi operasional nyata"
+          },
+          {
+            "id": "2.1.2",
+            "text": "Membangun model konseptual, matematis, dan simulasi sistem robotika"
+          },
+          {
+            "id": "2.1.3",
+            "text": "Estimasi cepat & analisis kualitatif untuk pengambilan keputusan di lapangan"
+          },
+          {
+            "id": "2.1.5",
+            "text": "Menghasilkan solusi yang dapat diimplementasikan dan merekomendasikan tindakan"
+          }
+        ]
+      },
+      {
+        "id": "2.2",
+        "title": "EXPERIMENTATION, INVESTIGATION AND KNOWLEDGE DISCOVERY",
+        "description": "Investigasi berbasis hipotesis, eksperimen, dan penarikan kesimpulan",
+        "questions": [
+          {
+            "id": "2.2.1",
+            "text": "Merumuskan hipotesis dan pertanyaan kritis dari masalah teknik yang dihadapi"
+          },
+          {
+            "id": "2.2.3",
+            "text": "Merancang & melaksanakan eksperimen: konstruksi, prosedur, pengukuran, dan analisis data"
+          },
+          {
+            "id": "2.2.4",
+            "text": "Uji validitas data, analisis kesimpulan, dan mempertahankan temuan berbasis data"
+          }
+        ]
+      },
+      {
+        "id": "2.3",
+        "title": "SYSTEM THINKING",
+        "description": "Pemahaman sistem secara holistik, keterkaitan, prioritas, dan trade-off",
+        "questions": [
+          {
+            "id": "2.3.1",
+            "text": "Memahami sistem robotika dalam konteks lingkungan, sosial, ekonomi, dan teknis secara menyeluruh"
+          },
+          {
+            "id": "2.3.2",
+            "text": "Mengidentifikasi keterkaitan subsistem dan perilaku emergent dalam sistem yang kompleks"
+          },
+          {
+            "id": "2.3.3",
+            "text": "Mengidentifikasi faktor pendorong utama dan mengalokasikan sumber daya secara tepat"
+          },
+          {
+            "id": "2.3.4",
+            "text": "Mengelola trade-off dan menyeimbangkan berbagai tujuan sistem secara optimal"
+          }
+        ]
+      },
+      {
+        "id": "2.4",
+        "title": "ATTITUDES, THOUGHT AND LEARNING",
+        "description": "Inisiatif, ketahanan, adaptasi, kreativitas, berpikir kritis, dan belajar sepanjang hayat",
+        "questions": [
+          {
+            "id": "2.4.1",
+            "text": "Berinisiatif dan berani mengambil keputusan meski informasi tidak lengkap"
+          },
+          {
+            "id": "2.4.2",
+            "text": "Determinasi, etos kerja tinggi, dan kemampuan deliver hasil tepat waktu"
+          },
+          {
+            "id": "2.4.3",
+            "text": "Adaptasi terhadap perubahan teknologi dan lingkungan kerja yang dinamis"
+          },
+          {
+            "id": "2.4.4",
+            "text": "Berpikir kreatif: konseptualisasi, sintesis, dan inovasi solusi baru"
+          },
+          {
+            "id": "2.4.7",
+            "text": "Belajar mandiri, mengikuti perkembangan teknologi, dan berbagi pengetahuan"
+          },
+          {
+            "id": "2.4.8",
+            "text": "Prioritisasi tugas, manajemen waktu, dan efisiensi penggunaan sumber daya"
+          }
+        ]
+      },
+      {
+        "id": "2.5",
+        "title": "ETHICS, EQUITY AND OTHER RESPONSIBILITIES",
+        "description": "Etika profesi, perilaku profesional, keberlanjutan, dan keberagaman",
+        "questions": [
+          {
+            "id": "2.5.1",
+            "text": "Standar etika profesi, integritas kerja, dan tanggung jawab sosial insinyur"
+          },
+          {
+            "id": "2.5.2",
+            "text": "Sikap profesional: norma internasional, etika media sosial, dan conduct di tempat kerja"
+          },
+          {
+            "id": "2.5.4",
+            "text": "Mengikuti tren IPTEK, dampak inovasi baru, dan koneksi antara teori dan praktik"
+          },
+          {
+            "id": "2.5.5",
+            "text": "Komitmen kesetaraan, merangkul keberagaman, dan inklusivitas di lingkungan kerja"
+          }
+        ]
+      },
+      {
+        "id": "3.1",
+        "title": "TEAMWORK AND COLLABORATION",
+        "description": "Kerja tim efektif, kolaborasi multidisiplin, keterlibatan stakeholder, dan jejaring profesional",
+        "questions": [
+          {
+            "id": "3.1.1",
+            "text": "Pembentukan tim, pembagian peran, koordinasi, dan manajemen proses tim"
+          },
+          {
+            "id": "3.1.2",
+            "text": "Kolaborasi lintas disiplin, budaya, dan komunitas — memanfaatkan perspektif berbeda"
+          },
+          {
+            "id": "3.1.3",
+            "text": "Ko-kreasi dengan pemangku kepentingan; mengakomodasi beragam input stakeholder"
+          },
+          {
+            "id": "3.1.4",
+            "text": "Membangun dan mengaktifkan jaringan profesional lintas budaya dan keahlian"
+          }
+        ]
+      },
+      {
+        "id": "3.2",
+        "title": "COMMUNICATIONS",
+        "description": "Komunikasi teknis: tertulis, visual, lisan, mendengarkan aktif, dan negosiasi",
+        "questions": [
+          {
+            "id": "3.2.3",
+            "text": "Penulisan laporan teknis, dokumentasi proyek, dan berbagai format tertulis profesional"
+          },
+          {
+            "id": "3.2.5",
+            "text": "Komunikasi visual: sketsa, diagram teknis, grafik data, dan visualisasi sistem"
+          },
+          {
+            "id": "3.2.6",
+            "text": "Presentasi lisan: struktur, bahasa, media pendukung, dan kemampuan pitching"
+          },
+          {
+            "id": "3.2.7",
+            "text": "Mendengarkan aktif, mengajukan pertanyaan tepat, dan dialog konstruktif"
+          },
+          {
+            "id": "3.2.8",
+            "text": "Negosiasi, mencapai kesepakatan, dan resolusi konflik secara profesional"
+          }
+        ]
+      },
+      {
+        "id": "3.3",
+        "title": "COMMUNICATIONS IN FOREIGN LANGUAGES",
+        "description": "Komunikasi profesional dalam Bahasa Inggris dan bahasa perdagangan regional",
+        "questions": [
+          {
+            "id": "3.3.1",
+            "text": "Membaca dokumen teknis, menulis laporan, email, dan komunikasi lisan dalam Bahasa Inggris"
+          },
+          {
+            "id": "3.3.2",
+            "text": "Komunikasi dalam bahasa perdagangan regional yang relevan (mis. Mandarin, Melayu) untuk konteks industri Batam"
+          }
+        ]
+      },
+      {
+        "id": "4.1",
+        "title": "EXTERNAL, SOCIETAL AND ENVIRONMENTAL CONTEXT",
+        "description": "Peran insinyur, dampak rekayasa, regulasi, dan isu kontemporer",
+        "questions": [
+          {
+            "id": "4.1.1",
+            "text": "Peran dan tanggung jawab insinyur terhadap masyarakat dan masa depan yang berkelanjutan"
+          },
+          {
+            "id": "4.1.2",
+            "text": "Dampak otomasi pada sistem lingkungan, sosial, dan ekonomi; penilaian keberlanjutan"
+          },
+          {
+            "id": "4.1.3",
+            "text": "Regulasi, standar (ISO, K3), lisensi profesional, dan perlindungan data (GDPR)"
+          },
+          {
+            "id": "4.1.5",
+            "text": "Isu kontemporer: AI ethics, otomasi & ketenagakerjaan, keberlanjutan & circular economy"
+          }
+        ]
+      },
+      {
+        "id": "4.2",
+        "title": "ENTERPRISE AND BUSINESS CONTEXT",
+        "description": "Ekosistem bisnis, kewirausahaan teknik, struktur organisasi, dan ekonomi proyek",
+        "questions": [
+          {
+            "id": "4.2.2",
+            "text": "Pemangku kepentingan, misi perusahaan, strategi, dan alokasi sumber daya"
+          },
+          {
+            "id": "4.2.3",
+            "text": "Kewirausahaan teknik: peluang berbasis teknologi robotika, nilai komersial inovasi"
+          },
+          {
+            "id": "4.2.4",
+            "text": "Fungsi manajemen, peran dalam organisasi, dan bekerja efektif dalam hierarki"
+          },
+          {
+            "id": "4.2.7",
+            "text": "Keuangan proyek rekayasa: ROI, investasi, perencanaan finansial, dan biaya siklus hidup"
+          }
+        ]
+      },
+      {
+        "id": "4.3",
+        "title": "CONCEIVING, SYSTEM ENGINEERING AND MANAGEMENT",
+        "description": "Identifikasi kebutuhan, konseptualisasi, rekayasa sistem, dan manajemen proyek pengembangan",
+        "questions": [
+          {
+            "id": "4.3.2",
+            "text": "Identifikasi kebutuhan pengguna, peluang, dan penetapan tujuan/persyaratan sistem"
+          },
+          {
+            "id": "4.3.3",
+            "text": "Mendefinisikan fungsi sistem, konsep solusi, dan arsitektur tingkat tinggi"
+          },
+          {
+            "id": "4.3.4",
+            "text": "Pemodelan performa sistem, life cycle cost, trade-off, dan manajemen antarmuka"
+          },
+          {
+            "id": "4.3.5",
+            "text": "Manajemen proyek pengembangan: agile/waterfall/scrum, kontrol biaya-jadwal-performa"
+          }
+        ]
+      },
+      {
+        "id": "4.4",
+        "title": "DESIGNING",
+        "description": "Proses desain, desain disipliner, multidisiplin, dan desain untuk keberlanjutan & keselamatan",
+        "questions": [
+          {
+            "id": "4.4.1",
+            "text": "Proses desain: kebutuhan → konsep → prototipe → iterasi → desain final"
+          },
+          {
+            "id": "4.4.4",
+            "text": "Desain disipliner: teknik digital, simulasi, pemodelan, dan analisis kuantitatif"
+          },
+          {
+            "id": "4.4.5",
+            "text": "Desain multidisiplin: integrasi mekanika, elektronika, software dalam sistem robotika"
+          },
+          {
+            "id": "4.4.6",
+            "text": "Desain untuk performa, keselamatan, keberlanjutan, dan operabilitas jangka panjang"
+          }
+        ]
+      },
+      {
+        "id": "4.5",
+        "title": "IMPLEMENTING",
+        "description": "Fabrikasi hardware, implementasi software, integrasi HW-SW, pengujian, dan sertifikasi",
+        "questions": [
+          {
+            "id": "4.5.2",
+            "text": "Proses fabrikasi hardware: assembly, toleransi, dan kontrol kualitas komponen"
+          },
+          {
+            "id": "4.5.3",
+            "text": "Implementasi software: algoritma, coding, integrasi modul, dan system build"
+          },
+          {
+            "id": "4.5.4",
+            "text": "Integrasi hardware-software: sensor, aktuator, embedded, dan sistem cyberphysical"
+          },
+          {
+            "id": "4.5.5",
+            "text": "Pengujian, verifikasi performa, validasi terhadap kebutuhan pengguna, dan sertifikasi"
+          }
+        ]
+      },
+      {
+        "id": "4.6",
+        "title": "OPERATING",
+        "description": "Operasi aman & berkelanjutan, pelatihan operator, pemeliharaan, dan peningkatan sistem",
+        "questions": [
+          {
+            "id": "4.6.1",
+            "text": "Merancang dan mengoptimalkan operasi yang aman, efisien, dan berkelanjutan"
+          },
+          {
+            "id": "4.6.2",
+            "text": "Pelatihan operator, penyusunan prosedur operasi, dan pengelolaan proses operasional"
+          },
+          {
+            "id": "4.6.3",
+            "text": "Pemeliharaan & logistik sistem, keandalan dan performa siklus hidup, serta nilai/biaya siklus hidup (ekonomi, sosial, lingkungan) sebagai umpan balik pengembangan"
+          },
+          {
+            "id": "4.6.4",
+            "text": "Peningkatan produk terencana (pre-planned improvement), perbaikan berbasis observasi operasional, upgrade sistem evolusioner, dan solusi kontingensi atas kebutuhan lapangan"
+          }
+        ]
+      },
+      {
+        "id": "5.1",
+        "title": "LEADING ENGINEERING ENDEAVORS",
+        "description": "Kepemimpinan rekayasa: identifikasi isu strategis, inovasi, manajemen proyek, dan membangun organisasi",
+        "questions": [
+          {
+            "id": "5.1.1",
+            "text": "Mengidentifikasi isu, masalah, atau paradoks strategis; mensintesis kebutuhan dan membingkai masalah yang akan diselesaikan"
+          },
+          {
+            "id": "5.1.5",
+            "text": "Membangun dan memimpin tim/organisasi: rekrutmen, pendefinisian peran, pengambilan keputusan kelompok, dan pengembangan kompetensi anggota"
+          },
+          {
+            "id": "5.1.6",
+            "text": "Merencanakan dan mengelola proyek hingga selesai: rencana aksi, manajemen SDM/waktu/finansial, risiko, dan pelaporan progres"
+          },
+          {
+            "id": "5.1.8",
+            "text": "Inovasi — merancang dan memperkenalkan produk/jasa/sistem baru ke pasar yang menjawab kebutuhan pelanggan dan masyarakat"
+          }
+        ]
+      },
+      {
+        "id": "5.3",
+        "title": "RESEARCH",
+        "description": "Riset rekayasa: perencanaan, pelaksanaan, pelaporan, dan etika penelitian",
+        "questions": [
+          {
+            "id": "5.3.1",
+            "text": "Identifikasi kebutuhan riset, perencanaan proyek penelitian, dan pemilihan pendekatan/metodologi yang tepat"
+          },
+          {
+            "id": "5.3.2",
+            "text": "Pelaksanaan riset: kerja empiris/teoritis, dokumentasi proses, analisis hasil, dan penarikan kesimpulan"
+          },
+          {
+            "id": "5.3.3",
+            "text": "Presentasi dan evaluasi riset: pelaporan ilmiah, validasi temuan, dan kontribusi terhadap pengetahuan yang ada"
+          }
+        ]
+      }
+    ],
+    "open_questions": [
+      {
+        "id": "A.1",
+        "text": "Teknologi atau tools apa yang PALING PENTING dikuasai fresh graduate sebelum mulai bekerja di perusahaan Anda?"
+      },
+      {
+        "id": "A.2",
+        "text": "Dalam 3–5 tahun ke depan, kompetensi atau teknologi baru apa yang menurut Anda harus mulai dimasukkan ke kurikulum Prodi TRR Polibatam?"
+      },
+      {
+        "id": "B.1",
+        "text": "Kompetensi personal/profesional apa yang paling sering KURANG pada lulusan yang Anda terima?"
+      },
+      {
+        "id": "C.1",
+        "text": "Kemampuan komunikasi atau kolaborasi apa yang paling sering perlu ditingkatkan pada lulusan yang Anda terima?"
+      },
+      {
+        "id": "D.1",
+        "text": "Pada area proses pembuatan  produk, proses dan layanan, kemampuan mana yang paling SULIT ditemukan pada fresh graduate yang Anda terima?"
+      },
+      {
+        "id": "E.1",
+        "text": "Pada area kepemimpinan di bidang engineering dan penelitian, kompetensi mana yang Anda harapkan ada pada lulusan Sarjana Terapan Teknologi Rekayasa Robotika?"
+      },
+      {
+        "id": "F.1",
+        "text": "Estimasi kebutuhan rekrutmen lulusan Sarjana Terapan Teknologi Rekayasa Robotika per tahun:"
+      },
+      {
+        "id": "F.2",
+        "text": "Hambatan utama yang membuat perusahaan TIDAK merekrut lebih banyak lulusan Sarjana Terapan Teknologi Rekayasa Robotika? (jika ada)"
+      }
+    ]
+  },
+  {
+    "id": "P2",
+    "title": "ALUMNI",
+    "sections": [
+      {
+        "id": "1.1",
+        "title": "MATEMATIKA & SAINS DASAR",
+        "description": "Fondasi matematika dan ilmu pengetahuan alam untuk rekayasa",
+        "questions": [
+          {
+            "id": "1.1.a",
+            "text": "Matematika (kalkulus, aljabar linear, statistik, metode numerik)"
+          },
+          {
+            "id": "1.1.b",
+            "text": "Fisika dasar (mekanika, listrik dan magnet, gelombang, optik)"
+          }
+        ]
+      },
+      {
+        "id": "1.2",
+        "title": "PENGETAHUAN TEKNIK INTI",
+        "description": "Kompetensi teknik dasar yang menjadi pondasi rekayasa robotika",
+        "questions": [
+          {
+            "id": "1.1.c",
+            "text": "Ilmu komputasi dasar (logika, algoritma, struktur data)"
+          },
+          {
+            "id": "1.2.a",
+            "text": "Rangkaian listrik, elektronika analog/digital, dan instrumentasi"
+          },
+          {
+            "id": "1.2.b",
+            "text": "Pemrograman (C/C++, Python) dan sistem embedded / RTOS"
+          },
+          {
+            "id": "1.2.c",
+            "text": "Sistem kontrol (PID, kontrol diskret, kontrol adaptif)"
+          }
+        ]
+      },
+      {
+        "id": "1.3",
+        "title": "PENGETAHUAN TEKNIK LANJUT — ROBOTIKA & INDUSTRI",
+        "description": "Kompetensi teknis spesifik dalam bidang robotika dan otomasi industri",
+        "questions": [
+          {
+            "id": "1.2.d",
+            "text": "Mekanika (statika, dinamika), sensor, dan aktuator untuk robotika"
+          },
+          {
+            "id": "1.3.a",
+            "text": "Kinematika robot dan pemrograman robot industri (ABB, KUKA, Fanuc)"
+          },
+          {
+            "id": "1.3.b",
+            "text": "Robot kolaboratif (cobot) dan interaksi manusia-robot (HRI)"
+          },
+          {
+            "id": "1.3.c",
+            "text": "Computer Vision dan pengolahan citra (OpenCV, YOLO)"
+          },
+          {
+            "id": "1.3.d",
+            "text": "Kecerdasan Buatan & Machine Learning terapan untuk robotika"
+          },
+          {
+            "id": "1.3.e",
+            "text": "ROS/ROS2 dan pemrograman sistem berbasis middleware robotika"
+          },
+          {
+            "id": "1.3.f",
+            "text": "PLC, otomasi industri, IoT & Industry 4.0 (OPC-UA, SCADA, Digital Twin)"
+          }
+        ]
+      },
+      {
+        "id": "1.4",
+        "title": "ILMU SOSIAL & HUMANIORA",
+        "description": "Kompetensi non-teknis dan pembentukan karakter profesional",
+        "questions": [
+          {
+            "id": "1.4.a",
+            "text": "Agama"
+          },
+          {
+            "id": "1.4.b",
+            "text": "Pembentukan karakter (Pancasila, Kewarganegaraan)"
+          }
+        ]
+      },
+      {
+        "id": "2.1",
+        "title": "ANALYTIC REASONING AND PROBLEM SOLVING",
+        "description": "Penalaran analitis, pemodelan, dan rekomendasi solusi teknik",
+        "questions": [
+          {
+            "id": "2.1.1",
+            "text": "Mengidentifikasi & memformulasikan masalah dari situasi operasional nyata"
+          },
+          {
+            "id": "2.1.2",
+            "text": "Membangun model konseptual, matematis, dan simulasi sistem robotika"
+          },
+          {
+            "id": "2.1.3",
+            "text": "Estimasi cepat & analisis kualitatif untuk pengambilan keputusan di lapangan"
+          },
+          {
+            "id": "2.1.5",
+            "text": "Menghasilkan solusi yang dapat diimplementasikan dan merekomendasikan tindakan"
+          }
+        ]
+      },
+      {
+        "id": "2.2",
+        "title": "EXPERIMENTATION, INVESTIGATION AND KNOWLEDGE DISCOVERY",
+        "description": "Investigasi berbasis hipotesis, eksperimen, dan penarikan kesimpulan",
+        "questions": [
+          {
+            "id": "2.2.1",
+            "text": "Merumuskan hipotesis dan pertanyaan kritis dari masalah teknik yang dihadapi"
+          },
+          {
+            "id": "2.2.3",
+            "text": "Merancang & melaksanakan eksperimen: konstruksi, prosedur, pengukuran, dan analisis data"
+          },
+          {
+            "id": "2.2.4",
+            "text": "Uji validitas data, analisis kesimpulan, dan mempertahankan temuan berbasis data"
+          }
+        ]
+      },
+      {
+        "id": "2.3",
+        "title": "SYSTEM THINKING",
+        "description": "Pemahaman sistem secara holistik, keterkaitan, prioritas, dan trade-off",
+        "questions": [
+          {
+            "id": "2.3.1",
+            "text": "Memahami sistem robotika dalam konteks lingkungan, sosial, ekonomi, dan teknis secara menyeluruh"
+          },
+          {
+            "id": "2.3.2",
+            "text": "Mengidentifikasi keterkaitan subsistem dan perilaku emergent dalam sistem yang kompleks"
+          },
+          {
+            "id": "2.3.3",
+            "text": "Mengidentifikasi faktor pendorong utama dan mengalokasikan sumber daya secara tepat"
+          },
+          {
+            "id": "2.3.4",
+            "text": "Mengelola trade-off dan menyeimbangkan berbagai tujuan sistem secara optimal"
+          }
+        ]
+      },
+      {
+        "id": "2.4",
+        "title": "ATTITUDES, THOUGHT AND LEARNING",
+        "description": "Inisiatif, ketahanan, adaptasi, kreativitas, berpikir kritis, dan belajar sepanjang hayat",
+        "questions": [
+          {
+            "id": "2.4.1",
+            "text": "Berinisiatif dan berani mengambil keputusan meski informasi tidak lengkap"
+          },
+          {
+            "id": "2.4.2",
+            "text": "Determinasi, etos kerja tinggi, dan kemampuan deliver hasil tepat waktu"
+          },
+          {
+            "id": "2.4.3",
+            "text": "Adaptasi terhadap perubahan teknologi dan lingkungan kerja yang dinamis"
+          },
+          {
+            "id": "2.4.4",
+            "text": "Berpikir kreatif: konseptualisasi, sintesis, dan inovasi solusi baru"
+          },
+          {
+            "id": "2.4.7",
+            "text": "Belajar mandiri, mengikuti perkembangan teknologi, dan berbagi pengetahuan"
+          },
+          {
+            "id": "2.4.8",
+            "text": "Prioritisasi tugas, manajemen waktu, dan efisiensi penggunaan sumber daya"
+          }
+        ]
+      },
+      {
+        "id": "2.5",
+        "title": "ETHICS, EQUITY AND OTHER RESPONSIBILITIES",
+        "description": "Etika profesi, perilaku profesional, keberlanjutan, dan keberagaman",
+        "questions": [
+          {
+            "id": "2.5.1",
+            "text": "Standar etika profesi, integritas kerja, dan tanggung jawab sosial insinyur"
+          },
+          {
+            "id": "2.5.2",
+            "text": "Sikap profesional: norma internasional, etika media sosial, dan conduct di tempat kerja"
+          },
+          {
+            "id": "2.5.4",
+            "text": "Mengikuti tren IPTEK, dampak inovasi baru, dan koneksi antara teori dan praktik"
+          },
+          {
+            "id": "2.5.5",
+            "text": "Komitmen kesetaraan, merangkul keberagaman, dan inklusivitas di lingkungan kerja"
+          }
+        ]
+      },
+      {
+        "id": "3.1",
+        "title": "TEAMWORK AND COLLABORATION",
+        "description": "Kerja tim efektif, kolaborasi multidisiplin, keterlibatan stakeholder, dan jejaring profesional",
+        "questions": [
+          {
+            "id": "3.1.1",
+            "text": "Pembentukan tim, pembagian peran, koordinasi, dan manajemen proses tim"
+          },
+          {
+            "id": "3.1.2",
+            "text": "Kolaborasi lintas disiplin, budaya, dan komunitas — memanfaatkan perspektif berbeda"
+          },
+          {
+            "id": "3.1.3",
+            "text": "Ko-kreasi dengan pemangku kepentingan; mengakomodasi beragam input stakeholder"
+          },
+          {
+            "id": "3.1.4",
+            "text": "Membangun dan mengaktifkan jaringan profesional lintas budaya dan keahlian"
+          }
+        ]
+      },
+      {
+        "id": "3.2",
+        "title": "COMMUNICATIONS",
+        "description": "Komunikasi teknis: tertulis, visual, lisan, mendengarkan aktif, dan negosiasi",
+        "questions": [
+          {
+            "id": "3.2.3",
+            "text": "Penulisan laporan teknis, dokumentasi proyek, dan berbagai format tertulis profesional"
+          },
+          {
+            "id": "3.2.5",
+            "text": "Komunikasi visual: sketsa, diagram teknis, grafik data, dan visualisasi sistem"
+          },
+          {
+            "id": "3.2.6",
+            "text": "Presentasi lisan: struktur, bahasa, media pendukung, dan kemampuan pitching"
+          },
+          {
+            "id": "3.2.7",
+            "text": "Mendengarkan aktif, mengajukan pertanyaan tepat, dan dialog konstruktif"
+          },
+          {
+            "id": "3.2.8",
+            "text": "Negosiasi, mencapai kesepakatan, dan resolusi konflik secara profesional"
+          }
+        ]
+      },
+      {
+        "id": "3.3",
+        "title": "COMMUNICATIONS IN FOREIGN LANGUAGES",
+        "description": "Komunikasi profesional dalam Bahasa Inggris dan bahasa perdagangan regional",
+        "questions": [
+          {
+            "id": "3.3.1",
+            "text": "Membaca dokumen teknis, menulis laporan, email, dan komunikasi lisan dalam Bahasa Inggris"
+          },
+          {
+            "id": "3.3.2",
+            "text": "Komunikasi dalam bahasa perdagangan regional yang relevan (mis. Mandarin, Melayu) untuk konteks industri Batam"
+          }
+        ]
+      },
+      {
+        "id": "4.1",
+        "title": "EXTERNAL, SOCIETAL AND ENVIRONMENTAL CONTEXT",
+        "description": "Peran insinyur, dampak rekayasa, regulasi, dan isu kontemporer",
+        "questions": [
+          {
+            "id": "4.1.1",
+            "text": "Peran dan tanggung jawab insinyur terhadap masyarakat dan masa depan yang berkelanjutan"
+          },
+          {
+            "id": "4.1.2",
+            "text": "Dampak otomasi pada sistem lingkungan, sosial, dan ekonomi; penilaian keberlanjutan"
+          },
+          {
+            "id": "4.1.3",
+            "text": "Regulasi, standar (ISO, K3), lisensi profesional, dan perlindungan data (GDPR)"
+          },
+          {
+            "id": "4.1.5",
+            "text": "Isu kontemporer: AI ethics, otomasi & ketenagakerjaan, keberlanjutan & circular economy"
+          }
+        ]
+      },
+      {
+        "id": "4.2",
+        "title": "ENTERPRISE AND BUSINESS CONTEXT",
+        "description": "Ekosistem bisnis, kewirausahaan teknik, struktur organisasi, dan ekonomi proyek",
+        "questions": [
+          {
+            "id": "4.2.2",
+            "text": "Pemangku kepentingan, misi perusahaan, strategi, dan alokasi sumber daya"
+          },
+          {
+            "id": "4.2.3",
+            "text": "Kewirausahaan teknik: peluang berbasis teknologi robotika, nilai komersial inovasi"
+          },
+          {
+            "id": "4.2.4",
+            "text": "Fungsi manajemen, peran dalam organisasi, dan bekerja efektif dalam hierarki"
+          },
+          {
+            "id": "4.2.7",
+            "text": "Keuangan proyek rekayasa: ROI, investasi, perencanaan finansial, dan biaya siklus hidup"
+          }
+        ]
+      },
+      {
+        "id": "4.3",
+        "title": "CONCEIVING, SYSTEM ENGINEERING AND MANAGEMENT",
+        "description": "Identifikasi kebutuhan, konseptualisasi, rekayasa sistem, dan manajemen proyek pengembangan",
+        "questions": [
+          {
+            "id": "4.3.2",
+            "text": "Identifikasi kebutuhan pengguna, peluang, dan penetapan tujuan/persyaratan sistem"
+          },
+          {
+            "id": "4.3.3",
+            "text": "Mendefinisikan fungsi sistem, konsep solusi, dan arsitektur tingkat tinggi"
+          },
+          {
+            "id": "4.3.4",
+            "text": "Pemodelan performa sistem, life cycle cost, trade-off, dan manajemen antarmuka"
+          },
+          {
+            "id": "4.3.5",
+            "text": "Manajemen proyek pengembangan: agile/waterfall/scrum, kontrol biaya-jadwal-performa"
+          }
+        ]
+      },
+      {
+        "id": "4.4",
+        "title": "DESIGNING",
+        "description": "Proses desain, desain disipliner, multidisiplin, dan desain untuk keberlanjutan & keselamatan",
+        "questions": [
+          {
+            "id": "4.4.1",
+            "text": "Proses desain: kebutuhan → konsep → prototipe → iterasi → desain final"
+          },
+          {
+            "id": "4.4.4",
+            "text": "Desain disipliner: teknik digital, simulasi, pemodelan, dan analisis kuantitatif"
+          },
+          {
+            "id": "4.4.5",
+            "text": "Desain multidisiplin: integrasi mekanika, elektronika, software dalam sistem robotika"
+          },
+          {
+            "id": "4.4.6",
+            "text": "Desain untuk performa, keselamatan, keberlanjutan, dan operabilitas jangka panjang"
+          }
+        ]
+      },
+      {
+        "id": "4.5",
+        "title": "IMPLEMENTING",
+        "description": "Fabrikasi hardware, implementasi software, integrasi HW-SW, pengujian, dan sertifikasi",
+        "questions": [
+          {
+            "id": "4.5.2",
+            "text": "Proses fabrikasi hardware: assembly, toleransi, dan kontrol kualitas komponen"
+          },
+          {
+            "id": "4.5.3",
+            "text": "Implementasi software: algoritma, coding, integrasi modul, dan system build"
+          },
+          {
+            "id": "4.5.4",
+            "text": "Integrasi hardware-software: sensor, aktuator, embedded, dan sistem cyberphysical"
+          },
+          {
+            "id": "4.5.5",
+            "text": "Pengujian, verifikasi performa, validasi terhadap kebutuhan pengguna, dan sertifikasi"
+          }
+        ]
+      },
+      {
+        "id": "4.6",
+        "title": "OPERATING",
+        "description": "Operasi aman & berkelanjutan, pelatihan operator, pemeliharaan, dan peningkatan sistem",
+        "questions": [
+          {
+            "id": "4.6.1",
+            "text": "Merancang dan mengoptimalkan operasi yang aman, efisien, dan berkelanjutan"
+          },
+          {
+            "id": "4.6.2",
+            "text": "Pelatihan operator, penyusunan prosedur operasi, dan pengelolaan proses operasional"
+          },
+          {
+            "id": "4.6.3",
+            "text": "Pemeliharaan & logistik sistem, keandalan dan performa siklus hidup, serta nilai/biaya siklus hidup (ekonomi, sosial, lingkungan) sebagai umpan balik pengembangan"
+          },
+          {
+            "id": "4.6.4",
+            "text": "Peningkatan produk terencana (pre-planned improvement), perbaikan berbasis observasi operasional, upgrade sistem evolusioner, dan solusi kontingensi atas kebutuhan lapangan"
+          }
+        ]
+      },
+      {
+        "id": "5.1",
+        "title": "LEADING ENGINEERING ENDEAVORS",
+        "description": "Kepemimpinan rekayasa: identifikasi isu strategis, inovasi, manajemen proyek, dan membangun organisasi",
+        "questions": [
+          {
+            "id": "5.1.1",
+            "text": "Mengidentifikasi isu, masalah, atau paradoks strategis; mensintesis kebutuhan dan membingkai masalah yang akan diselesaikan"
+          },
+          {
+            "id": "5.1.5",
+            "text": "Membangun dan memimpin tim/organisasi: rekrutmen, pendefinisian peran, pengambilan keputusan kelompok, dan pengembangan kompetensi anggota"
+          },
+          {
+            "id": "5.1.6",
+            "text": "Merencanakan dan mengelola proyek hingga selesai: rencana aksi, manajemen SDM/waktu/finansial, risiko, dan pelaporan progres"
+          },
+          {
+            "id": "5.1.8",
+            "text": "Inovasi — merancang dan memperkenalkan produk/jasa/sistem baru ke pasar yang menjawab kebutuhan pelanggan dan masyarakat"
+          }
+        ]
+      },
+      {
+        "id": "5.3",
+        "title": "RESEARCH",
+        "description": "Riset rekayasa: perencanaan, pelaksanaan, pelaporan, dan etika penelitian",
+        "questions": [
+          {
+            "id": "5.3.1",
+            "text": "Identifikasi kebutuhan riset, perencanaan proyek penelitian, dan pemilihan pendekatan/metodologi yang tepat"
+          },
+          {
+            "id": "5.3.2",
+            "text": "Pelaksanaan riset: kerja empiris/teoritis, dokumentasi proses, analisis hasil, dan penarikan kesimpulan"
+          },
+          {
+            "id": "5.3.3",
+            "text": "Presentasi dan evaluasi riset: pelaporan ilmiah, validasi temuan, dan kontribusi terhadap pengetahuan yang ada"
+          }
+        ]
+      }
+    ],
+    "open_questions": [
+      {
+        "id": "A.1",
+        "text": "Kompetensi teknis apa yang paling PENTING dalam pekerjaan Anda saat ini, yang saat kuliah di Prodi TRR belum cukup Anda kuasai?"
+      },
+      {
+        "id": "A.2",
+        "text": "Kompetensi atau teknologi baru apa yang ingin Anda pelajari ulang atau pelajari lebih dalam? Apakah sebaiknya sudah ada di kurikulum Prodi TRR?"
+      },
+      {
+        "id": "B.1",
+        "text": "Keterampilan personal atau profesional apa yang paling KURANG Anda rasakan kesiapannya saat pertama kali mulai bekerja?"
+      },
+      {
+        "id": "C.1",
+        "text": "Kemampuan komunikasi atau kolaborasi apa yang paling SERING Anda gunakan di tempat kerja dan paling membantu karir Anda?"
+      },
+      {
+        "id": "D.1",
+        "text": "Pada area proses pembuatan  produk, proses dan layanan, kemampuan mana yang paling SERING Anda gunakan dan paling sulit dikuasai saat pertama kali bekerja?"
+      },
+      {
+        "id": "E.1",
+        "text": "Apakah kompetensi kepemimpinan di bidang engineering dan riset dibutuhkan dalam pekerjaan Anda? Ceritakan konteksnya."
+      },
+      {
+        "id": "F.1",
+        "text": "Kesesuaian pekerjaan saat ini dengan bidang Robotika / Otomasi:"
+      },
+      {
+        "id": "F.2",
+        "text": "Jika Anda bisa mengubah SATU HAL dari kurikulum Prodi TRR untuk mempersiapkan Anda lebih baik, apa itu?"
+      }
+    ]
+  },
+  {
+    "id": "P3",
+    "title": "DOSEN",
+    "sections": [
+      {
+        "id": "1.1",
+        "title": "MATEMATIKA & SAINS DASAR",
+        "description": "Fondasi matematika dan ilmu pengetahuan alam untuk rekayasa",
+        "questions": [
+          {
+            "id": "1.1.a",
+            "text": "Matematika (kalkulus, aljabar linear, statistik, metode numerik)"
+          },
+          {
+            "id": "1.1.b",
+            "text": "Fisika dasar (mekanika, listrik dan magnet, gelombang, optik)"
+          }
+        ]
+      },
+      {
+        "id": "1.2",
+        "title": "PENGETAHUAN TEKNIK INTI",
+        "description": "Kompetensi teknik dasar yang menjadi pondasi rekayasa robotika",
+        "questions": [
+          {
+            "id": "1.1.c",
+            "text": "Ilmu komputasi dasar (logika, algoritma, struktur data)"
+          },
+          {
+            "id": "1.2.a",
+            "text": "Rangkaian listrik, elektronika analog/digital, dan instrumentasi"
+          },
+          {
+            "id": "1.2.b",
+            "text": "Pemrograman (C/C++, Python) dan sistem embedded / RTOS"
+          },
+          {
+            "id": "1.2.c",
+            "text": "Sistem kontrol (PID, kontrol diskret, kontrol adaptif)"
+          }
+        ]
+      },
+      {
+        "id": "1.3",
+        "title": "PENGETAHUAN TEKNIK LANJUT — ROBOTIKA & INDUSTRI",
+        "description": "Kompetensi teknis spesifik dalam bidang robotika dan otomasi industri",
+        "questions": [
+          {
+            "id": "1.2.d",
+            "text": "Mekanika (statika, dinamika), sensor, dan aktuator untuk robotika"
+          },
+          {
+            "id": "1.3.a",
+            "text": "Kinematika robot dan pemrograman robot industri (ABB, KUKA, Fanuc)"
+          },
+          {
+            "id": "1.3.b",
+            "text": "Robot kolaboratif (cobot) dan interaksi manusia-robot (HRI)"
+          },
+          {
+            "id": "1.3.c",
+            "text": "Computer Vision dan pengolahan citra (OpenCV, YOLO)"
+          },
+          {
+            "id": "1.3.d",
+            "text": "Kecerdasan Buatan & Machine Learning terapan untuk robotika"
+          },
+          {
+            "id": "1.3.e",
+            "text": "ROS/ROS2 dan pemrograman sistem berbasis middleware robotika"
+          },
+          {
+            "id": "1.3.f",
+            "text": "PLC, otomasi industri, IoT & Industry 4.0 (OPC-UA, SCADA, Digital Twin)"
+          }
+        ]
+      },
+      {
+        "id": "1.4",
+        "title": "ILMU SOSIAL & HUMANIORA",
+        "description": "Kompetensi non-teknis dan pembentukan karakter profesional",
+        "questions": [
+          {
+            "id": "1.4.a",
+            "text": "Agama"
+          },
+          {
+            "id": "1.4.b",
+            "text": "Pembentukan karakter (Pancasila, Kewarganegaraan)"
+          }
+        ]
+      },
+      {
+        "id": "2.1",
+        "title": "ANALYTIC REASONING AND PROBLEM SOLVING",
+        "description": "Penalaran analitis, pemodelan, dan rekomendasi solusi teknik",
+        "questions": [
+          {
+            "id": "2.1.1",
+            "text": "Mengidentifikasi & memformulasikan masalah dari situasi operasional nyata"
+          },
+          {
+            "id": "2.1.2",
+            "text": "Membangun model konseptual, matematis, dan simulasi sistem robotika"
+          },
+          {
+            "id": "2.1.3",
+            "text": "Estimasi cepat & analisis kualitatif untuk pengambilan keputusan di lapangan"
+          },
+          {
+            "id": "2.1.5",
+            "text": "Menghasilkan solusi yang dapat diimplementasikan dan merekomendasikan tindakan"
+          }
+        ]
+      },
+      {
+        "id": "2.2",
+        "title": "EXPERIMENTATION, INVESTIGATION AND KNOWLEDGE DISCOVERY",
+        "description": "Investigasi berbasis hipotesis, eksperimen, dan penarikan kesimpulan",
+        "questions": [
+          {
+            "id": "2.2.1",
+            "text": "Merumuskan hipotesis dan pertanyaan kritis dari masalah teknik yang dihadapi"
+          },
+          {
+            "id": "2.2.3",
+            "text": "Merancang & melaksanakan eksperimen: konstruksi, prosedur, pengukuran, dan analisis data"
+          },
+          {
+            "id": "2.2.4",
+            "text": "Uji validitas data, analisis kesimpulan, dan mempertahankan temuan berbasis data"
+          }
+        ]
+      },
+      {
+        "id": "2.3",
+        "title": "SYSTEM THINKING",
+        "description": "Pemahaman sistem secara holistik, keterkaitan, prioritas, dan trade-off",
+        "questions": [
+          {
+            "id": "2.3.1",
+            "text": "Memahami sistem robotika dalam konteks lingkungan, sosial, ekonomi, dan teknis secara menyeluruh"
+          },
+          {
+            "id": "2.3.2",
+            "text": "Mengidentifikasi keterkaitan subsistem dan perilaku emergent dalam sistem yang kompleks"
+          },
+          {
+            "id": "2.3.3",
+            "text": "Mengidentifikasi faktor pendorong utama dan mengalokasikan sumber daya secara tepat"
+          },
+          {
+            "id": "2.3.4",
+            "text": "Mengelola trade-off dan menyeimbangkan berbagai tujuan sistem secara optimal"
+          }
+        ]
+      },
+      {
+        "id": "2.4",
+        "title": "ATTITUDES, THOUGHT AND LEARNING",
+        "description": "Inisiatif, ketahanan, adaptasi, kreativitas, berpikir kritis, dan belajar sepanjang hayat",
+        "questions": [
+          {
+            "id": "2.4.1",
+            "text": "Berinisiatif dan berani mengambil keputusan meski informasi tidak lengkap"
+          },
+          {
+            "id": "2.4.2",
+            "text": "Determinasi, etos kerja tinggi, dan kemampuan deliver hasil tepat waktu"
+          },
+          {
+            "id": "2.4.3",
+            "text": "Adaptasi terhadap perubahan teknologi dan lingkungan kerja yang dinamis"
+          },
+          {
+            "id": "2.4.4",
+            "text": "Berpikir kreatif: konseptualisasi, sintesis, dan inovasi solusi baru"
+          },
+          {
+            "id": "2.4.7",
+            "text": "Belajar mandiri, mengikuti perkembangan teknologi, dan berbagi pengetahuan"
+          },
+          {
+            "id": "2.4.8",
+            "text": "Prioritisasi tugas, manajemen waktu, dan efisiensi penggunaan sumber daya"
+          }
+        ]
+      },
+      {
+        "id": "2.5",
+        "title": "ETHICS, EQUITY AND OTHER RESPONSIBILITIES",
+        "description": "Etika profesi, perilaku profesional, keberlanjutan, dan keberagaman",
+        "questions": [
+          {
+            "id": "2.5.1",
+            "text": "Standar etika profesi, integritas kerja, dan tanggung jawab sosial insinyur"
+          },
+          {
+            "id": "2.5.2",
+            "text": "Sikap profesional: norma internasional, etika media sosial, dan conduct di tempat kerja"
+          },
+          {
+            "id": "2.5.4",
+            "text": "Mengikuti tren IPTEK, dampak inovasi baru, dan koneksi antara teori dan praktik"
+          },
+          {
+            "id": "2.5.5",
+            "text": "Komitmen kesetaraan, merangkul keberagaman, dan inklusivitas di lingkungan kerja"
+          }
+        ]
+      },
+      {
+        "id": "3.1",
+        "title": "TEAMWORK AND COLLABORATION",
+        "description": "Kerja tim efektif, kolaborasi multidisiplin, keterlibatan stakeholder, dan jejaring profesional",
+        "questions": [
+          {
+            "id": "3.1.1",
+            "text": "Pembentukan tim, pembagian peran, koordinasi, dan manajemen proses tim"
+          },
+          {
+            "id": "3.1.2",
+            "text": "Kolaborasi lintas disiplin, budaya, dan komunitas — memanfaatkan perspektif berbeda"
+          },
+          {
+            "id": "3.1.3",
+            "text": "Ko-kreasi dengan pemangku kepentingan; mengakomodasi beragam input stakeholder"
+          },
+          {
+            "id": "3.1.4",
+            "text": "Membangun dan mengaktifkan jaringan profesional lintas budaya dan keahlian"
+          }
+        ]
+      },
+      {
+        "id": "3.2",
+        "title": "COMMUNICATIONS",
+        "description": "Komunikasi teknis: tertulis, visual, lisan, mendengarkan aktif, dan negosiasi",
+        "questions": [
+          {
+            "id": "3.2.3",
+            "text": "Penulisan laporan teknis, dokumentasi proyek, dan berbagai format tertulis profesional"
+          },
+          {
+            "id": "3.2.5",
+            "text": "Komunikasi visual: sketsa, diagram teknis, grafik data, dan visualisasi sistem"
+          },
+          {
+            "id": "3.2.6",
+            "text": "Presentasi lisan: struktur, bahasa, media pendukung, dan kemampuan pitching"
+          },
+          {
+            "id": "3.2.7",
+            "text": "Mendengarkan aktif, mengajukan pertanyaan tepat, dan dialog konstruktif"
+          },
+          {
+            "id": "3.2.8",
+            "text": "Negosiasi, mencapai kesepakatan, dan resolusi konflik secara profesional"
+          }
+        ]
+      },
+      {
+        "id": "3.3",
+        "title": "COMMUNICATIONS IN FOREIGN LANGUAGES",
+        "description": "Komunikasi profesional dalam Bahasa Inggris dan bahasa perdagangan regional",
+        "questions": [
+          {
+            "id": "3.3.1",
+            "text": "Membaca dokumen teknis, menulis laporan, email, dan komunikasi lisan dalam Bahasa Inggris"
+          },
+          {
+            "id": "3.3.2",
+            "text": "Komunikasi dalam bahasa perdagangan regional yang relevan (mis. Mandarin, Melayu) untuk konteks industri Batam"
+          }
+        ]
+      },
+      {
+        "id": "4.1",
+        "title": "EXTERNAL, SOCIETAL AND ENVIRONMENTAL CONTEXT",
+        "description": "Peran insinyur, dampak rekayasa, regulasi, dan isu kontemporer",
+        "questions": [
+          {
+            "id": "4.1.1",
+            "text": "Peran dan tanggung jawab insinyur terhadap masyarakat dan masa depan yang berkelanjutan"
+          },
+          {
+            "id": "4.1.2",
+            "text": "Dampak otomasi pada sistem lingkungan, sosial, dan ekonomi; penilaian keberlanjutan"
+          },
+          {
+            "id": "4.1.3",
+            "text": "Regulasi, standar (ISO, K3), lisensi profesional, dan perlindungan data (GDPR)"
+          },
+          {
+            "id": "4.1.5",
+            "text": "Isu kontemporer: AI ethics, otomasi & ketenagakerjaan, keberlanjutan & circular economy"
+          }
+        ]
+      },
+      {
+        "id": "4.2",
+        "title": "ENTERPRISE AND BUSINESS CONTEXT",
+        "description": "Ekosistem bisnis, kewirausahaan teknik, struktur organisasi, dan ekonomi proyek",
+        "questions": [
+          {
+            "id": "4.2.2",
+            "text": "Pemangku kepentingan, misi perusahaan, strategi, dan alokasi sumber daya"
+          },
+          {
+            "id": "4.2.3",
+            "text": "Kewirausahaan teknik: peluang berbasis teknologi robotika, nilai komersial inovasi"
+          },
+          {
+            "id": "4.2.4",
+            "text": "Fungsi manajemen, peran dalam organisasi, dan bekerja efektif dalam hierarki"
+          },
+          {
+            "id": "4.2.7",
+            "text": "Keuangan proyek rekayasa: ROI, investasi, perencanaan finansial, dan biaya siklus hidup"
+          }
+        ]
+      },
+      {
+        "id": "4.3",
+        "title": "CONCEIVING, SYSTEM ENGINEERING AND MANAGEMENT",
+        "description": "Identifikasi kebutuhan, konseptualisasi, rekayasa sistem, dan manajemen proyek pengembangan",
+        "questions": [
+          {
+            "id": "4.3.2",
+            "text": "Identifikasi kebutuhan pengguna, peluang, dan penetapan tujuan/persyaratan sistem"
+          },
+          {
+            "id": "4.3.3",
+            "text": "Mendefinisikan fungsi sistem, konsep solusi, dan arsitektur tingkat tinggi"
+          },
+          {
+            "id": "4.3.4",
+            "text": "Pemodelan performa sistem, life cycle cost, trade-off, dan manajemen antarmuka"
+          },
+          {
+            "id": "4.3.5",
+            "text": "Manajemen proyek pengembangan: agile/waterfall/scrum, kontrol biaya-jadwal-performa"
+          }
+        ]
+      },
+      {
+        "id": "4.4",
+        "title": "DESIGNING",
+        "description": "Proses desain, desain disipliner, multidisiplin, dan desain untuk keberlanjutan & keselamatan",
+        "questions": [
+          {
+            "id": "4.4.1",
+            "text": "Proses desain: kebutuhan → konsep → prototipe → iterasi → desain final"
+          },
+          {
+            "id": "4.4.4",
+            "text": "Desain disipliner: teknik digital, simulasi, pemodelan, dan analisis kuantitatif"
+          },
+          {
+            "id": "4.4.5",
+            "text": "Desain multidisiplin: integrasi mekanika, elektronika, software dalam sistem robotika"
+          },
+          {
+            "id": "4.4.6",
+            "text": "Desain untuk performa, keselamatan, keberlanjutan, dan operabilitas jangka panjang"
+          }
+        ]
+      },
+      {
+        "id": "4.5",
+        "title": "IMPLEMENTING",
+        "description": "Fabrikasi hardware, implementasi software, integrasi HW-SW, pengujian, dan sertifikasi",
+        "questions": [
+          {
+            "id": "4.5.2",
+            "text": "Proses fabrikasi hardware: assembly, toleransi, dan kontrol kualitas komponen"
+          },
+          {
+            "id": "4.5.3",
+            "text": "Implementasi software: algoritma, coding, integrasi modul, dan system build"
+          },
+          {
+            "id": "4.5.4",
+            "text": "Integrasi hardware-software: sensor, aktuator, embedded, dan sistem cyberphysical"
+          },
+          {
+            "id": "4.5.5",
+            "text": "Pengujian, verifikasi performa, validasi terhadap kebutuhan pengguna, dan sertifikasi"
+          }
+        ]
+      },
+      {
+        "id": "4.6",
+        "title": "OPERATING",
+        "description": "Operasi aman & berkelanjutan, pelatihan operator, pemeliharaan, dan peningkatan sistem",
+        "questions": [
+          {
+            "id": "4.6.1",
+            "text": "Merancang dan mengoptimalkan operasi yang aman, efisien, dan berkelanjutan"
+          },
+          {
+            "id": "4.6.2",
+            "text": "Pelatihan operator, penyusunan prosedur operasi, dan pengelolaan proses operasional"
+          },
+          {
+            "id": "4.6.3",
+            "text": "Pemeliharaan & logistik sistem, keandalan dan performa siklus hidup, serta nilai/biaya siklus hidup (ekonomi, sosial, lingkungan) sebagai umpan balik pengembangan"
+          },
+          {
+            "id": "4.6.4",
+            "text": "Peningkatan produk terencana (pre-planned improvement), perbaikan berbasis observasi operasional, upgrade sistem evolusioner, dan solusi kontingensi atas kebutuhan lapangan"
+          }
+        ]
+      },
+      {
+        "id": "5.1",
+        "title": "LEADING ENGINEERING ENDEAVORS",
+        "description": "Kepemimpinan rekayasa: identifikasi isu strategis, inovasi, manajemen proyek, dan membangun organisasi",
+        "questions": [
+          {
+            "id": "5.1.1",
+            "text": "Mengidentifikasi isu, masalah, atau paradoks strategis; mensintesis kebutuhan dan membingkai masalah yang akan diselesaikan"
+          },
+          {
+            "id": "5.1.5",
+            "text": "Membangun dan memimpin tim/organisasi: rekrutmen, pendefinisian peran, pengambilan keputusan kelompok, dan pengembangan kompetensi anggota"
+          },
+          {
+            "id": "5.1.6",
+            "text": "Merencanakan dan mengelola proyek hingga selesai: rencana aksi, manajemen SDM/waktu/finansial, risiko, dan pelaporan progres"
+          },
+          {
+            "id": "5.1.8",
+            "text": "Inovasi — merancang dan memperkenalkan produk/jasa/sistem baru ke pasar yang menjawab kebutuhan pelanggan dan masyarakat"
+          }
+        ]
+      },
+      {
+        "id": "5.3",
+        "title": "RESEARCH",
+        "description": "Riset rekayasa: perencanaan, pelaksanaan, pelaporan, dan etika penelitian",
+        "questions": [
+          {
+            "id": "5.3.1",
+            "text": "Identifikasi kebutuhan riset, perencanaan proyek penelitian, dan pemilihan pendekatan/metodologi yang tepat"
+          },
+          {
+            "id": "5.3.2",
+            "text": "Pelaksanaan riset: kerja empiris/teoritis, dokumentasi proses, analisis hasil, dan penarikan kesimpulan"
+          },
+          {
+            "id": "5.3.3",
+            "text": "Presentasi dan evaluasi riset: pelaporan ilmiah, validasi temuan, dan kontribusi terhadap pengetahuan yang ada"
+          }
+        ]
+      }
+    ],
+    "open_questions": [
+      {
+        "id": "A.1",
+        "text": "Area teknis apa yang PALING PERLU ditambahkan atau diperkuat di kurikulum 2025 untuk mencapai standar IABEE ETECH?"
+      },
+      {
+        "id": "A.2",
+        "text": "Kompetensi atau teknologi baru apa yang menurut Anda HARUS ada di kurikulum Prodi TRR dalam 3–5 tahun ke depan?"
+      },
+      {
+        "id": "B.1",
+        "text": "Keterampilan personal atau profesional apa yang menurut Anda masih paling KURANG dikuasai lulusan Prodi TRR?"
+      },
+      {
+        "id": "C.1",
+        "text": "Bagaimana cara terbaik mengintegrasikan pendekatan CDIO di kurikulum 2025? MK apa yang paling perlu dirombak atau dikembangkan?"
+      },
+      {
+        "id": "D.1",
+        "text": "Pada area proses pembuatan  produk, proses dan layanan, tingkat kemahiran mana yang REALISTIS dicapai lulusan Prodi TRR, dan mana yang perlu paling banyak ditingkatkan?"
+      },
+      {
+        "id": "E.1",
+        "text": "Seberapa penting kompetensi kepemimpinan di bidang engineering dan riset untuk lulusan Prodi TRR? Haruskah ada MK atau modul khusus untuk area ini?"
+      },
+      {
+        "id": "F.1",
+        "text": "MK apa yang PALING PERLU direvisi atau diperbarui di kurikulum 2025? Jelaskan alasannya."
+      },
+      {
+        "id": "F.2",
+        "text": "MK baru apa yang HARUS ADA di kurikulum 2025 untuk menjawab kebutuhan industri terkini?"
+      }
+    ]
+  }
+]
