@@ -129,6 +129,16 @@ const Survey: React.FC = () => {
       }
     }
 
+    // Validate bloom level selection for section steps
+    if (currentStep >= 1 && currentStep <= groupedSections.length) {
+      const group = groupedSections[currentStep - 1];
+      const missing = group.sections.filter((sec: any) => !answers[sec.id]?.bloom);
+      if (missing.length > 0) {
+        alert(`Mohon pilih Target Level (C1-C6) untuk: ${missing.map((s: any) => s.id + ' - ' + s.title).join(', ')}`);
+        return;
+      }
+    }
+
     if (!isFinalStep) {
       setSearchParams({ step: (currentStep + 1).toString() });
       topRef.current?.scrollIntoView({ behavior: 'smooth' });

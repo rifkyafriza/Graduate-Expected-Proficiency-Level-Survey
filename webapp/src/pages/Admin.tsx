@@ -24,6 +24,11 @@ interface ResponseData {
 const GAP_COLORS = { '-': '#ef4444', '0': '#3b82f6', '+': '#10b981' };
 
 export default function Admin() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loginUser, setLoginUser] = useState('');
+  const [loginPass, setLoginPass] = useState('');
+  const [loginError, setLoginError] = useState('');
+
   const [tab, setTab] = useState(0);
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState<ResponseData[]>([]);
@@ -34,8 +39,17 @@ export default function Admin() {
   const [backupStatus, setBackupStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (isAuthenticated) fetchData();
+  }, [isAuthenticated]);
+
+  const handleLogin = () => {
+    if (loginUser === 'admin' && loginPass === 'robotika') {
+      setIsAuthenticated(true);
+      setLoginError('');
+    } else {
+      setLoginError('Username atau password salah.');
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -57,21 +71,42 @@ export default function Admin() {
     }
   };
 
+  const handleDeleteResponse = async (id: number) => {
+    if (!confirm(`Hapus responden ID ${id}? Tindakan ini tidak dapat dibatalkan.`)) return;
+    try {
+      const { error } = await supabase.from('responses').delete().eq('id', id);
+      if (error) throw error;
+      setResults(prev => prev.filter(r => r.id !== id));
+    } catch (err: any) {
+      alert(`Gagal menghapus: ${err.message}`);
+    }
+  };
+
   const handleExportCSV = () => {
     if (results.length === 0) return;
     
-    // Simplistic CSV export
-    const headers = ['ID', 'Package', 'Created At', 'Raw Answers'];
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + headers.join(",") + "\n"
-      + results.map(r => `${r.id},${r.package_id},${r.created_at},"${JSON.stringify(r.answers).replace(/"/g, '""')}"`).join("\n");
-      
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "survey_results.csv");
+    const escapeCSV = (val: string) => `"${String(val).replace(/"/g, '""')}"`;
+    const headers = ['ID', 'Package', 'Name', 'Email', 'Institution', 'Created At', 'Answers JSON'];
+    const rows = results.map(r => [
+      r.id,
+      r.package_id,
+      escapeCSV(r.respondent_data?.name || r.respondent_data?.nama || ''),
+      escapeCSV(r.respondent_data?.email || ''),
+      escapeCSV(r.respondent_data?.institution || r.respondent_data?.instansi || ''),
+      escapeCSV(r.created_at),
+      escapeCSV(JSON.stringify(r.answers))
+    ].join(','));
+    
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `survey_results_${new Date().toISOString().slice(0,10)}.csv`;
     document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleServerBackup = async () => {
@@ -244,6 +279,36 @@ export default function Admin() {
   const bloomData = getBloomData();
   const gapDataByMajorSection = getGapDataByMajorSection();
 
+  if (!isAuthenticated) {
+    return (
+      <Container maxWidth="sm" sx={{ py: 8 }}>
+        <Card sx={{ background: 'rgba(30, 41, 59, 0.9)', color: 'white', p: 4 }}>
+          <CardContent>
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center', mb: 3 }}>
+              🔒 Admin Login
+            </Typography>
+            {loginError && <Alert severity="error" sx={{ mb: 2 }}>{loginError}</Alert>}
+            <TextField
+              fullWidth label="Username" value={loginUser}
+              onChange={e => setLoginUser(e.target.value)}
+              sx={{ mb: 2, input: { color: 'white' }, label: { color: '#94a3b8' } }}
+              onKeyDown={e => e.key === 'Enter' && handleLogin()}
+            />
+            <TextField
+              fullWidth label="Password" type="password" value={loginPass}
+              onChange={e => setLoginPass(e.target.value)}
+              sx={{ mb: 3, input: { color: 'white' }, label: { color: '#94a3b8' } }}
+              onKeyDown={e => e.key === 'Enter' && handleLogin()}
+            />
+            <Button fullWidth variant="contained" onClick={handleLogin} size="large">
+              Login
+            </Button>
+          </CardContent>
+        </Card>
+      </Container>
+    );
+  }
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
@@ -261,6 +326,7 @@ export default function Admin() {
       <Paper sx={{ width: '100%', mb: 4 }}>
         <Tabs value={tab} onChange={(_e, v) => setTab(v)} textColor="primary" indicatorColor="primary">
           <Tab label="Results & Visualizations" />
+          <Tab label="Result & Visualization (Dummy)" />
           <Tab label="Question Editor" />
         </Tabs>
       </Paper>
@@ -378,9 +444,9 @@ export default function Admin() {
                 <TableRow>
                   <TableCell sx={{ color: '#94a3b8' }}>ID</TableCell>
                   <TableCell sx={{ color: '#94a3b8' }}>Respondent</TableCell>
-                  <TableCell sx={{ color: '#94a3b8' }}>Institution</TableCell>
+                  <TableCell sx={{ color: '#94a3b8' }}>Package</TableCell>
                   <TableCell sx={{ color: '#94a3b8' }}>Date</TableCell>
-                  <TableCell sx={{ color: '#94a3b8' }}>Raw Answers Preview</TableCell>
+                  <TableCell sx={{ color: '#94a3b8' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -388,19 +454,21 @@ export default function Admin() {
                   <TableRow key={row.id}>
                     <TableCell sx={{ color: 'white' }}>{row.id}</TableCell>
                     <TableCell sx={{ color: 'white' }}>
-                      <Typography variant="body2">{row.respondent_data?.nama || 'Unknown'}</Typography>
+                      <Typography variant="body2">{row.respondent_data?.name || row.respondent_data?.nama || 'Unknown'}</Typography>
                       <Typography variant="caption" sx={{ color: '#94a3b8' }}>{row.respondent_data?.email || ''}</Typography>
                     </TableCell>
-                    <TableCell sx={{ color: 'white' }}>{row.respondent_data?.instansi || '-'}</TableCell>
+                    <TableCell sx={{ color: 'white' }}>{row.package_id}</TableCell>
                     <TableCell sx={{ color: 'white' }}>{new Date(row.created_at).toLocaleString()}</TableCell>
-                    <TableCell sx={{ maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#94a3b8' }}>
-                      {JSON.stringify(row.answers)}
+                    <TableCell>
+                      <IconButton color="error" size="small" onClick={() => handleDeleteResponse(row.id)}>
+                        <Trash2 size={16} />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
                 {results.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} align="center" sx={{ color: '#94a3b8', py: 4 }}>No responses yet.</TableCell>
+                    <TableCell colSpan={5} align="center" sx={{ color: '#94a3b8', py: 4 }}>No responses yet.</TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -409,8 +477,134 @@ export default function Admin() {
         </Box>
       )}
 
-      {/* TAB 1: Editor */}
-      {tab === 1 && (
+      {/* TAB 1: Dummy Data Visualization */}
+      {tab === 1 && (() => {
+        // Generate 50 dummy responses
+        const pkgs = ['P1', 'P2', 'P3'];
+        const blooms = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6'];
+        const gaps = ['-', '0', '+'];
+        const sectionIds = ['1.1','1.2','1.3','1.4','2.1','2.2','2.3','2.4','2.5','3.1','3.2','3.3','4.1','4.2','4.3','4.4','4.5','4.6','5.1','5.3'];
+        const questionCounts: Record<string,number> = {'1.1':2,'1.2':4,'1.3':7,'1.4':2,'2.1':4,'2.2':3,'2.3':4,'2.4':6,'2.5':4,'3.1':4,'3.2':5,'3.3':2,'4.1':4,'4.2':4,'4.3':4,'4.4':4,'4.5':4,'4.6':4,'5.1':4,'5.3':3};
+        const seededRandom = (i: number, j: number) => ((i * 13 + j * 7 + 3) % 100) / 100;
+
+        const dummyResults: ResponseData[] = Array.from({ length: 50 }, (_, i) => {
+          const pkg = pkgs[i % 3];
+          const answers: any = {};
+          sectionIds.forEach((sid, si) => {
+            const bloom = blooms[Math.floor(seededRandom(i, si) * 6)];
+            const questions: Record<string,string> = {};
+            const qCount = questionCounts[sid] || 3;
+            for (let qi = 0; qi < qCount; qi++) {
+              questions[`${sid}.${qi+1}`] = gaps[Math.floor(seededRandom(i + qi, si) * 3)];
+            }
+            answers[sid] = { bloom, questions };
+          });
+          return {
+            id: i + 1,
+            package_id: pkg,
+            respondent_data: { name: `Dummy User ${i+1}`, email: `dummy${i+1}@test.com` },
+            answers,
+            created_at: new Date(2025, 0, 1 + i).toISOString()
+          };
+        });
+
+        // Reuse visualization logic with dummy data
+        const pkgMap: Record<string,string> = { P1:'Industri', P2:'Alumni', P3:'Dosen' };
+        const bloomMap: Record<string,number> = { C1:0, C2:1, C3:2, C4:3, C5:4, C6:5 };
+
+        const dummySectionStats: Record<string,any> = {};
+        dummyResults.forEach(r => {
+          const group = pkgMap[r.package_id];
+          Object.keys(r.answers).forEach(secId => {
+            const bloomStr = r.answers[secId]?.bloom;
+            const bloomVal = bloomStr ? bloomMap[bloomStr] : null;
+            if (bloomVal !== null && bloomVal !== undefined) {
+              let total = bloomVal, count = 1;
+              const qs = r.answers[secId]?.questions;
+              if (qs) Object.values(qs).forEach((v: any) => { let s = bloomVal; if (v==='-') s-=1; else if (v==='+') s+=1; s=Math.max(0,Math.min(5,s)); total+=s; count++; });
+              const avg = total / count;
+              if (!dummySectionStats[secId]) dummySectionStats[secId] = { name: secId, IndustriSum:0,IndustriCount:0,AlumniSum:0,AlumniCount:0,DosenSum:0,DosenCount:0 };
+              dummySectionStats[secId][`${group}Sum`] += avg;
+              dummySectionStats[secId][`${group}Count`] += 1;
+            }
+          });
+        });
+        const dummyProfData = Object.values(dummySectionStats).map((s: any) => ({
+          name: s.name,
+          Industri: s.IndustriCount > 0 ? Number((s.IndustriSum/s.IndustriCount).toFixed(2)) : 0,
+          Alumni: s.AlumniCount > 0 ? Number((s.AlumniSum/s.AlumniCount).toFixed(2)) : 0,
+          Dosen: s.DosenCount > 0 ? Number((s.DosenSum/s.DosenCount).toFixed(2)) : 0,
+        })).sort((a,b) => { const [a1,a2]=a.name.split('.').map(Number); const [b1,b2]=b.name.split('.').map(Number); return a1!==b1?a1-b1:(a2||0)-(b2||0); });
+
+        const dummyBloomCounts: Record<string,number> = {};
+        dummyResults.forEach(r => { Object.keys(r.answers).forEach(sid => { const b = r.answers[sid]?.bloom; if (b) dummyBloomCounts[b] = (dummyBloomCounts[b]||0)+1; }); });
+        const dummyBloomData = Object.keys(dummyBloomCounts).sort().map(k => ({ name: k, count: dummyBloomCounts[k] }));
+
+        const dummyGapCounts: Record<string,{'-':number,'0':number,'+':number}> = {};
+        dummyResults.forEach(r => { Object.keys(r.answers).forEach(sid => { const m = sid.split('.')[0]; if (!dummyGapCounts[m]) dummyGapCounts[m] = {'-':0,'0':0,'+':0}; const qs = r.answers[sid]?.questions; if (qs) Object.values(qs).forEach((v: any) => { if (dummyGapCounts[m][v as keyof typeof dummyGapCounts[typeof m]] !== undefined) dummyGapCounts[m][v as '-'|'0'|'+']++; }); }); });
+        const dummyGapData = Object.keys(dummyGapCounts).sort((a,b) => parseInt(a)-parseInt(b)).map(m => ({ name: `Section ${m}`, Kurang: dummyGapCounts[m]['-'], Sesuai: dummyGapCounts[m]['0'], Lebih: dummyGapCounts[m]['+'] }));
+
+        return (
+          <Box>
+            <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>Dummy Data Visualization (50 responses)</Typography>
+            <Box sx={{ mb: 4 }}>
+              <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white', borderRadius: 2 }}>
+                <CardHeader title="Expected Proficiency Level by Section (Dummy)" />
+                <CardContent sx={{ height: 400 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={dummyProfData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                      <XAxis dataKey="name" stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 5]} stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <RechartsTooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: 'white' }} />
+                      <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                      <Bar dataKey="Industri" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="Alumni" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="Dosen" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </Box>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 4 }}>
+              <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white' }}>
+                <CardHeader title="Bloom Distribution (Dummy)" />
+                <CardContent sx={{ height: 300 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={dummyBloomData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                      <XAxis dataKey="name" stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <YAxis stroke="#94a3b8" allowDecimals={false} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <RechartsTooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: 'white' }} />
+                      <Bar dataKey="count" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+              <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white' }}>
+                <CardHeader title="Gap Evaluation (Dummy)" />
+                <CardContent sx={{ height: 300 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={dummyGapData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                      <XAxis dataKey="name" stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <YAxis stroke="#94a3b8" allowDecimals={false} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <RechartsTooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: 'white' }} />
+                      <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                      <Bar dataKey="Kurang" stackId="a" fill={GAP_COLORS['-']} radius={[0, 0, 4, 4]} />
+                      <Bar dataKey="Sesuai" stackId="a" fill={GAP_COLORS['0']} />
+                      <Bar dataKey="Lebih" stackId="a" fill={GAP_COLORS['+']} radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </Box>
+          </Box>
+        );
+      })()}
+
+      {/* TAB 2: Editor */}
+      {tab === 2 && (
         <Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6" sx={{ color: 'white' }}>Survey Configuration</Typography>
