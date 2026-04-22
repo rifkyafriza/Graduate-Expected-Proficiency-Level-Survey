@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Save } from 'lucide-react';
+import { CircularProgress } from '@mui/material';
 import surveysJsonData from '../data/surveys.json';
+import { supabase } from '../lib/supabase';
 
 const bloomLevels = [
   { id: 'C1', name: 'Mengingat' },
@@ -139,8 +141,9 @@ const Survey: React.FC = () => {
           answers: { ...answers, open_questions: openAnswers }
         };
 
-        // TODO: Replace with Supabase insert for production
-        console.log('Survey response:', responseData);
+        const { error } = await supabase.from('responses').insert(responseData);
+        if (error) throw error;
+
         sessionStorage.removeItem(`survey_draft_${packageId}`);
         navigate('/thank-you');
       } catch (err) {

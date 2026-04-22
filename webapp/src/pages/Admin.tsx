@@ -5,8 +5,9 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   TextField, IconButton, Divider
 } from '@mui/material';
-import { Download, Save, Trash2, Plus } from 'lucide-react';
+import { Download, Save, Trash2, Plus, CheckCircle2, Server } from 'lucide-react';
 import surveysJsonData from '../data/surveys.json';
+import { supabase } from '../lib/supabase';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
   ResponsiveContainer, Legend
@@ -40,8 +41,15 @@ export default function Admin() {
     try {
       // Load surveys from local JSON data
       setSurveysConfig(surveysJsonData as any[]);
-      // TODO: Load results from Supabase when deployed
-      setResults([]);
+
+      // Load results from Supabase
+      const { data, error } = await supabase
+        .from('responses')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setResults(data || []);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -67,18 +75,38 @@ export default function Admin() {
   };
 
   const handleServerBackup = async () => {
-    // TODO: Implement backup via Supabase
-    console.log('Backup requested — not yet connected to backend');
-    setBackupStatus('Backup feature not yet connected to backend');
+    try {
+      // Export all responses as JSON backup download
+      const { data, error } = await supabase.from('responses').select('*');
+      if (error) throw error;
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `survey_backup_${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      setBackupStatus('Backup downloaded successfully!');
+    } catch (err: any) {
+      setBackupStatus(`Backup failed: ${err.message}`);
+    }
     setTimeout(() => setBackupStatus(null), 5000);
   };
 
   const handleSaveConfig = async () => {
     setSavingConfig(true);
     try {
-      // TODO: Save config to Supabase when deployed
-      console.log('Config save requested:', surveysConfig);
-      alert('Survey configuration saved locally (not yet connected to backend).');
+      // Save config to Supabase config table
+      const { error } = await supabase
+        .from('config')
+        .upsert({ key: 'surveys', value: surveysConfig }, { onConflict: 'key' });
+
+      if (error) throw error;
+      alert('Survey configuration saved successfully!');
     } catch (err: any) {
       alert(`Error saving config: ${err.message}`);
     } finally {
