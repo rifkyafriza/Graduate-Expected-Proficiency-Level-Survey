@@ -274,8 +274,8 @@ export default function Admin() {
                 if (val === '-') qScore -= 1;
                 else if (val === '+') qScore += 1;
 
-                // Enforce min 0, max 5
-                qScore = Math.max(0, Math.min(5, qScore));
+                // Enforce min 1, max 6 (C1=1 through C6=6)
+                qScore = Math.max(1, Math.min(6, qScore));
 
                 sectionTotalScore += qScore;
                 sectionComponentCount += 1;
@@ -441,7 +441,7 @@ export default function Admin() {
                     <BarChart data={expectedProficiencyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                       <XAxis dataKey="name" stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                      <YAxis domain={[0, 5]} stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 6]} stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                       <RechartsTooltip
                         contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: 'white' }}
                         cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
@@ -589,7 +589,7 @@ export default function Admin() {
 
         // Reuse visualization logic with dummy data
         const pkgMap: Record<string, string> = { P1: 'Industri', P2: 'Alumni', P3: 'Dosen' };
-        const bloomMap: Record<string, number> = { C1: 0, C2: 1, C3: 2, C4: 3, C5: 4, C6: 5 };
+        const bloomMap: Record<string, number> = { C1: 1, C2: 2, C3: 3, C4: 4, C5: 5, C6: 6 };
 
         const dummySectionStats: Record<string, any> = {};
         dummyResults.forEach(r => {
@@ -600,7 +600,7 @@ export default function Admin() {
             if (bloomVal !== null && bloomVal !== undefined) {
               let total = bloomVal, count = 1;
               const qs = r.answers[secId]?.questions;
-              if (qs) Object.values(qs).forEach((v: any) => { let s = bloomVal; if (v === '-') s -= 1; else if (v === '+') s += 1; s = Math.max(0, Math.min(5, s)); total += s; count++; });
+              if (qs) Object.values(qs).forEach((v: any) => { let s = bloomVal; if (v === '-') s -= 1; else if (v === '+') s += 1; s = Math.max(1, Math.min(6, s)); total += s; count++; });
               const avg = total / count;
               if (!dummySectionStats[secId]) dummySectionStats[secId] = { name: secId, IndustriSum: 0, IndustriCount: 0, AlumniSum: 0, AlumniCount: 0, DosenSum: 0, DosenCount: 0 };
               dummySectionStats[secId][`${group}Sum`] += avg;
@@ -634,7 +634,7 @@ export default function Admin() {
                     <BarChart data={dummyProfData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                       <XAxis dataKey="name" stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                      <YAxis domain={[0, 5]} stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 6]} stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                       <RechartsTooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: 'white' }} />
                       <Legend wrapperStyle={{ paddingTop: '20px' }} />
                       <Bar dataKey="Industri" fill="#ef4444" radius={[4, 4, 0, 0]} />
