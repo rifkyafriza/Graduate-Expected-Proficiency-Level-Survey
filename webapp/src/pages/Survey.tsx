@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Save } from 'lucide-react';
-import { CircularProgress, Box } from '@mui/material';
+import surveysJsonData from '../data/surveys.json';
 
 const bloomLevels = [
   { id: 'C1', name: 'Mengingat' },
@@ -23,8 +23,8 @@ const Survey: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [surveysData, setSurveysData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [surveysData] = useState<any[]>(surveysJsonData as any[]);
+  const [loading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const currentStep = parseInt(searchParams.get('step') || '0', 10);
@@ -37,19 +37,6 @@ const Survey: React.FC = () => {
 
   // Ref for auto-scroll
   const topRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    fetch('http://localhost:3001/api/surveys')
-      .then(res => res.json())
-      .then(data => {
-        setSurveysData(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Failed to fetch surveys", err);
-        setLoading(false);
-      });
-  }, []);
 
   const survey = surveysData.find(s => s.id === packageId);
 
@@ -117,9 +104,9 @@ const Survey: React.FC = () => {
 
   if (loading || !survey) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-        <CircularProgress />
-      </Box>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <div style={{ color: 'var(--text-muted)' }}>Loading...</div>
+      </div>
     );
   }
 
@@ -152,11 +139,8 @@ const Survey: React.FC = () => {
           answers: { ...answers, open_questions: openAnswers }
         };
 
-        await fetch('http://localhost:3001/api/responses', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(responseData)
-        });
+        // TODO: Replace with Supabase insert for production
+        console.log('Survey response:', responseData);
         sessionStorage.removeItem(`survey_draft_${packageId}`);
         navigate('/thank-you');
       } catch (err) {

@@ -5,7 +5,8 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   TextField, IconButton, Divider
 } from '@mui/material';
-import { Download, Save, Trash2, Plus, Server, CheckCircle2 } from 'lucide-react';
+import { Download, Save, Trash2, Plus } from 'lucide-react';
+import surveysJsonData from '../data/surveys.json';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
   ResponsiveContainer, Legend
@@ -37,19 +38,10 @@ export default function Admin() {
 
   const fetchData = async () => {
     try {
-      const [resResults, resConfig] = await Promise.all([
-        fetch('http://localhost:3001/api/admin/results'),
-        fetch('http://localhost:3001/api/surveys')
-      ]);
-      
-      if (!resResults.ok) throw new Error('Failed to fetch results');
-      if (!resConfig.ok) throw new Error('Failed to fetch config');
-      
-      const resultsData = await resResults.json();
-      const configData = await resConfig.json();
-      
-      setResults(resultsData);
-      setSurveysConfig(configData);
+      // Load surveys from local JSON data
+      setSurveysConfig(surveysJsonData as any[]);
+      // TODO: Load results from Supabase when deployed
+      setResults([]);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -75,27 +67,18 @@ export default function Admin() {
   };
 
   const handleServerBackup = async () => {
-    try {
-      const res = await fetch('http://localhost:3001/api/admin/backup', { method: 'POST' });
-      if (!res.ok) throw new Error('Backup failed');
-      const data = await res.json();
-      setBackupStatus(data.message);
-      setTimeout(() => setBackupStatus(null), 5000);
-    } catch (err: any) {
-      alert(`Error creating server backup: ${err.message}`);
-    }
+    // TODO: Implement backup via Supabase
+    console.log('Backup requested — not yet connected to backend');
+    setBackupStatus('Backup feature not yet connected to backend');
+    setTimeout(() => setBackupStatus(null), 5000);
   };
 
   const handleSaveConfig = async () => {
     setSavingConfig(true);
     try {
-      const res = await fetch('http://localhost:3001/api/surveys', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(surveysConfig)
-      });
-      if (!res.ok) throw new Error('Failed to save config');
-      alert('Survey configuration saved successfully!');
+      // TODO: Save config to Supabase when deployed
+      console.log('Config save requested:', surveysConfig);
+      alert('Survey configuration saved locally (not yet connected to backend).');
     } catch (err: any) {
       alert(`Error saving config: ${err.message}`);
     } finally {
