@@ -115,6 +115,27 @@ const Survey: React.FC = () => {
     }
   }, [answers, openAnswers, respondentData, packageId, initializedPackage]);
 
+  useEffect(() => {
+    const scrollTo = searchParams.get('scrollTo');
+    if (scrollTo) {
+      setTimeout(() => {
+        const el = document.getElementById(scrollTo);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.style.transition = 'box-shadow 0.3s';
+          el.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.5)';
+          setTimeout(() => {
+            el.style.boxShadow = 'none';
+          }, 2000);
+          
+          const newParams = new URLSearchParams(searchParams);
+          newParams.delete('scrollTo');
+          setSearchParams(newParams, { replace: true });
+        }
+      }, 150);
+    }
+  }, [searchParams, setSearchParams]);
+
   const groupedSections = useMemo(() => {
     if (!survey || !survey.sections) return [];
     const groups: Record<string, any[]> = {};
@@ -141,84 +162,90 @@ const Survey: React.FC = () => {
   const isFinalStep = currentStep === totalSteps - 1;
 
   const handleNext = async () => {
+    let missingStep = -1;
+    let missingId = '';
+    let alertMsg = '';
+
+    const validateIdentitas = () => {
+      if (!respondentData.name) return { id: 'identitas-name', msg: 'Mohon isi Nama Lengkap' };
+      if (!respondentData.email) return { id: 'identitas-email', msg: 'Mohon isi Email' };
+      if (packageId === 'P1') {
+        if (!respondentData.position) return { id: 'identitas-position', msg: 'Mohon isi Jabatan / Posisi' };
+        if (!respondentData.institution) return { id: 'identitas-institution', msg: 'Mohon isi Nama Perusahaan' };
+        if (!respondentData.industry_sector) return { id: 'identitas-industry_sector', msg: 'Mohon isi Bidang Industri' };
+        if (!respondentData.ever_recruited) return { id: 'identitas-ever_recruited', msg: 'Mohon isi status Rekrut Alumni' };
+      }
+      if (packageId === 'P2') {
+        if (!respondentData.graduationYear) return { id: 'identitas-graduationYear', msg: 'Mohon isi Tahun Kelulusan' };
+        if (!respondentData.current_status) return { id: 'identitas-current_status', msg: 'Mohon isi Status Saat Ini' };
+        if (!respondentData.job_sector) return { id: 'identitas-job_sector', msg: 'Mohon isi Bidang Pekerjaan' };
+        if (!respondentData.position) return { id: 'identitas-position', msg: 'Mohon isi Jabatan / Posisi' };
+        if (!respondentData.waiting_time) return { id: 'identitas-waiting_time', msg: 'Mohon isi Masa Tunggu Kerja' };
+      }
+      if (packageId === 'P3') {
+        if (!respondentData.nidn) return { id: 'identitas-nidn', msg: 'Mohon isi NIDN/NUPTK' };
+        if (!respondentData.expertise) return { id: 'identitas-expertise', msg: 'Mohon isi Bidang Keahlian Utama' };
+        if (!respondentData.courses) return { id: 'identitas-courses', msg: 'Mohon isi MK yang Diampu' };
+        if (!respondentData.teaching_duration) return { id: 'identitas-teaching_duration', msg: 'Mohon isi Lama Mengajar' };
+      }
+      return null;
+    };
+
+    const validateGroup = (gIdx: number) => {
+      const group = groupedSections[gIdx];
+      for (const sec of group.sections) {
+        if (!answers[sec.id]?.bloom) {
+          return { id: `bloom-${sec.id}`, msg: `Mohon pilih Target Level (C1-C6) untuk bagian ${sec.id}` };
+        }
+        if (sec.open_questions) {
+          for (const q of sec.open_questions) {
+            if (!openAnswers[q.id]?.trim()) {
+              return { id: `open-${q.id}`, msg: `Mohon jawab pertanyaan terbuka ${q.id}` };
+            }
+          }
+        }
+      }
+      return null;
+    };
+
     if (!isFinalStep) {
+      if (currentStep === 0) {
+        const err = validateIdentitas();
+        if (err) { missingStep = 0; missingId = err.id; alertMsg = err.msg; }
+      } else {
+        const err = validateGroup(currentStep - 1);
+        if (err) { missingStep = currentStep; missingId = err.id; alertMsg = err.msg; }
+      }
+
+      if (missingStep !== -1) {
+        alert(alertMsg);
+        document.getElementById(missingId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        const el = document.getElementById(missingId);
+        if (el) {
+          el.style.transition = 'box-shadow 0.3s';
+          el.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.5)';
+          setTimeout(() => { el.style.boxShadow = 'none'; }, 2000);
+        }
+        return;
+      }
       setSearchParams({ step: (currentStep + 1).toString() });
       topRef.current?.scrollIntoView({ behavior: 'smooth' });
     } else {
-      // Comprehensive validation before submit
-      // 1. Check respondent data
-      if (!respondentData.name || !respondentData.email) {
-        alert('Mohon isi Nama Lengkap dan Email pada halaman Identitas.');
-        setSearchParams({ step: '0' });
-        topRef.current?.scrollIntoView({ behavior: 'smooth' });
-        return;
-      }
+      // Final submit validation - check everything
+      let err = validateIdentitas();
+      if (err) { missingStep = 0; missingId = err.id; alertMsg = err.msg; }
 
-      if (packageId === 'P1') {
-        if (!respondentData.position || !respondentData.institution || !respondentData.industry_sector || !respondentData.ever_recruited) {
-          alert('Mohon lengkapi semua field pada halaman Identitas Responden.');
-          setSearchParams({ step: '0' });
-          topRef.current?.scrollIntoView({ behavior: 'smooth' });
-          return;
+      if (missingStep === -1) {
+        for (let gIdx = 0; gIdx < groupedSections.length; gIdx++) {
+          err = validateGroup(gIdx);
+          if (err) { missingStep = gIdx + 1; missingId = err.id; alertMsg = err.msg; break; }
         }
       }
 
-      if (packageId === 'P2') {
-        if (!respondentData.graduationYear || !respondentData.current_status || !respondentData.job_sector || !respondentData.position || !respondentData.waiting_time) {
-          alert('Mohon lengkapi semua field pada halaman Identitas Responden.');
-          setSearchParams({ step: '0' });
-          topRef.current?.scrollIntoView({ behavior: 'smooth' });
-          return;
-        }
-      }
-
-      if (packageId === 'P3') {
-        if (!respondentData.nidn || !respondentData.expertise || !respondentData.courses || !respondentData.teaching_duration) {
-          alert('Mohon lengkapi semua field pada halaman Identitas Responden.');
-          setSearchParams({ step: '0' });
-          topRef.current?.scrollIntoView({ behavior: 'smooth' });
-          return;
-        }
-      }
-
-      // 2. Check all sections have bloom level selected
-      const missingBlooms: string[] = [];
-      let firstMissingPage = -1;
-      groupedSections.forEach((group, gIdx) => {
-        group.sections.forEach((sec: any) => {
-          if (!answers[sec.id]?.bloom) {
-            missingBlooms.push(`${sec.id} - ${sec.title}`);
-            if (firstMissingPage === -1) firstMissingPage = gIdx + 1;
-          }
-        });
-      });
-      if (missingBlooms.length > 0) {
-        alert(`Mohon pilih Target Level (C1-C6) untuk:\n${missingBlooms.join('\n')}`);
-        setSearchParams({ step: firstMissingPage.toString() });
-        topRef.current?.scrollIntoView({ behavior: 'smooth' });
-        return;
-      }
-
-      // 3. Check all open questions are answered
-      const missingOpen: string[] = [];
-      let firstMissingOpenPage = -1;
-      groupedSections.forEach((group, gIdx) => {
-        group.sections.forEach((sec: any) => {
-          if (sec.open_questions) {
-            sec.open_questions.forEach((q: any) => {
-              if (!openAnswers[q.id]?.trim()) {
-                missingOpen.push(`${q.id}. ${q.text.substring(0, 60)}...`);
-                if (firstMissingOpenPage === -1) firstMissingOpenPage = gIdx + 1;
-              }
-            });
-          }
-        });
-      });
-
-      if (missingOpen.length > 0) {
-        alert(`Mohon jawab semua pertanyaan terbuka:\n${missingOpen.join('\n')}`);
-        setSearchParams({ step: firstMissingOpenPage.toString() });
-        topRef.current?.scrollIntoView({ behavior: 'smooth' });
+      if (missingStep !== -1) {
+        alert(alertMsg);
+        setSearchParams({ step: missingStep.toString(), scrollTo: missingId });
         return;
       }
 
@@ -302,6 +329,7 @@ const Survey: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
             <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Nama Lengkap <span style={{ color: '#ef4444' }}>*</span></label>
             <input
+              id="identitas-name"
               type="text"
               value={respondentData.name}
               onChange={e => setRespondentData(prev => ({ ...prev, name: e.target.value }))}
@@ -312,6 +340,7 @@ const Survey: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
             <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Email <span style={{ color: '#ef4444' }}>*</span></label>
             <input
+              id="identitas-email"
               type="email"
               value={respondentData.email}
               onChange={e => setRespondentData(prev => ({ ...prev, email: e.target.value }))}
@@ -325,15 +354,15 @@ const Survey: React.FC = () => {
             <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Jabatan / Posisi <span style={{ color: '#ef4444' }}>*</span></label>
-                <input type="text" value={respondentData.position} onChange={e => setRespondentData(prev => ({ ...prev, position: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan jabatan/posisi Anda" />
+                <input id="identitas-position" type="text" value={respondentData.position} onChange={e => setRespondentData(prev => ({ ...prev, position: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan jabatan/posisi Anda" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Nama Perusahaan <span style={{ color: '#ef4444' }}>*</span></label>
-                <input type="text" value={respondentData.institution} onChange={e => setRespondentData(prev => ({ ...prev, institution: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan nama perusahaan" />
+                <input id="identitas-institution" type="text" value={respondentData.institution} onChange={e => setRespondentData(prev => ({ ...prev, institution: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan nama perusahaan" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Bidang Industri <span style={{ color: '#ef4444' }}>*</span></label>
-                <select value={respondentData.industry_sector} onChange={e => setRespondentData(prev => ({ ...prev, industry_sector: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
+                <select id="identitas-industry_sector" value={respondentData.industry_sector} onChange={e => setRespondentData(prev => ({ ...prev, industry_sector: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
                   <option value="" style={{ color: '#0f172a' }}>Pilih Bidang Industri</option>
                   <option value="Elektronik/Manufaktur" style={{ color: '#0f172a' }}>Elektronik/Manufaktur</option>
                   <option value="Otomotif" style={{ color: '#0f172a' }}>Otomotif</option>
@@ -347,7 +376,7 @@ const Survey: React.FC = () => {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Pernah Rekrut Alumni Robotika Polibatam <span style={{ color: '#ef4444' }}>*</span></label>
-                <select value={respondentData.ever_recruited} onChange={e => setRespondentData(prev => ({ ...prev, ever_recruited: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
+                <select id="identitas-ever_recruited" value={respondentData.ever_recruited} onChange={e => setRespondentData(prev => ({ ...prev, ever_recruited: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
                   <option value="" style={{ color: '#0f172a' }}>Pilih Jawaban</option>
                   <option value="Ya" style={{ color: '#0f172a' }}>Ya</option>
                   <option value="Belum — tapi familiar" style={{ color: '#0f172a' }}>Belum — tapi familiar</option>
@@ -362,11 +391,11 @@ const Survey: React.FC = () => {
             <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Tahun Kelulusan <span style={{ color: '#ef4444' }}>*</span></label>
-                <input type="number" min="1900" max="2100" value={respondentData.graduationYear} onChange={e => setRespondentData(prev => ({ ...prev, graduationYear: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan tahun kelulusan Anda" />
+                <input id="identitas-graduationYear" type="number" min="1900" max="2100" value={respondentData.graduationYear} onChange={e => setRespondentData(prev => ({ ...prev, graduationYear: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan tahun kelulusan Anda" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Status Saat Ini <span style={{ color: '#ef4444' }}>*</span></label>
-                <select value={respondentData.current_status} onChange={e => setRespondentData(prev => ({ ...prev, current_status: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
+                <select id="identitas-current_status" value={respondentData.current_status} onChange={e => setRespondentData(prev => ({ ...prev, current_status: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
                   <option value="" style={{ color: '#0f172a' }}>Pilih Status</option>
                   <option value="Bekerja full-time" style={{ color: '#0f172a' }}>Bekerja full-time</option>
                   <option value="Wirausaha" style={{ color: '#0f172a' }}>Wirausaha</option>
@@ -376,7 +405,7 @@ const Survey: React.FC = () => {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Bidang Pekerjaan <span style={{ color: '#ef4444' }}>*</span></label>
-                <select value={respondentData.job_sector} onChange={e => setRespondentData(prev => ({ ...prev, job_sector: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
+                <select id="identitas-job_sector" value={respondentData.job_sector} onChange={e => setRespondentData(prev => ({ ...prev, job_sector: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
                   <option value="" style={{ color: '#0f172a' }}>Pilih Bidang Pekerjaan</option>
                   <option value="Robotika/Otomasi" style={{ color: '#0f172a' }}>Robotika/Otomasi</option>
                   <option value="Elektronik/Elektro" style={{ color: '#0f172a' }}>Elektronik/Elektro</option>
@@ -389,11 +418,11 @@ const Survey: React.FC = () => {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Jabatan / Posisi Saat Ini <span style={{ color: '#ef4444' }}>*</span></label>
-                <input type="text" value={respondentData.position} onChange={e => setRespondentData(prev => ({ ...prev, position: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan jabatan/posisi Anda saat ini" />
+                <input id="identitas-position" type="text" value={respondentData.position} onChange={e => setRespondentData(prev => ({ ...prev, position: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan jabatan/posisi Anda saat ini" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Masa Tunggu Kerja Setelah Lulus <span style={{ color: '#ef4444' }}>*</span></label>
-                <select value={respondentData.waiting_time} onChange={e => setRespondentData(prev => ({ ...prev, waiting_time: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
+                <select id="identitas-waiting_time" value={respondentData.waiting_time} onChange={e => setRespondentData(prev => ({ ...prev, waiting_time: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
                   <option value="" style={{ color: '#0f172a' }}>Pilih Masa Tunggu Kerja</option>
                   <option value="< 1 bln" style={{ color: '#0f172a' }}>&lt; 1 bln</option>
                   <option value="1–3 bln" style={{ color: '#0f172a' }}>1–3 bln</option>
@@ -410,19 +439,19 @@ const Survey: React.FC = () => {
             <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>NIDN/NUPTK <span style={{ color: '#ef4444' }}>*</span></label>
-                <input type="number" value={respondentData.nidn} onChange={e => setRespondentData(prev => ({ ...prev, nidn: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan NIDN/NUPTK Anda" />
+                <input id="identitas-nidn" type="number" value={respondentData.nidn} onChange={e => setRespondentData(prev => ({ ...prev, nidn: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan NIDN/NUPTK Anda" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Bidang Keahlian Utama <span style={{ color: '#ef4444' }}>*</span></label>
-                <input type="text" value={respondentData.expertise} onChange={e => setRespondentData(prev => ({ ...prev, expertise: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan bidang keahlian utama" />
+                <input id="identitas-expertise" type="text" value={respondentData.expertise} onChange={e => setRespondentData(prev => ({ ...prev, expertise: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan bidang keahlian utama" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>MK yang Diampu <span style={{ color: '#ef4444' }}>*</span></label>
-                <input type="text" value={respondentData.courses} onChange={e => setRespondentData(prev => ({ ...prev, courses: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan mata kuliah yang diampu" />
+                <input id="identitas-courses" type="text" value={respondentData.courses} onChange={e => setRespondentData(prev => ({ ...prev, courses: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan mata kuliah yang diampu" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Lama Mengajar di Prodi TRR <span style={{ color: '#ef4444' }}>*</span></label>
-                <select value={respondentData.teaching_duration} onChange={e => setRespondentData(prev => ({ ...prev, teaching_duration: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
+                <select id="identitas-teaching_duration" value={respondentData.teaching_duration} onChange={e => setRespondentData(prev => ({ ...prev, teaching_duration: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
                   <option value="" style={{ color: '#0f172a' }}>Pilih Lama Mengajar</option>
                   <option value="< 2 thn" style={{ color: '#0f172a' }}>&lt; 2 thn</option>
                   <option value="2–5 thn" style={{ color: '#0f172a' }}>2–5 thn</option>
@@ -473,7 +502,7 @@ const Survey: React.FC = () => {
               </div>
 
               {/* Bloom Selector */}
-              <div className="glass-panel" style={{ padding: '1rem' }}>
+              <div id={`bloom-${section.id}`} className="glass-panel" style={{ padding: '1rem' }}>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>1. Target Level</h3>
                 <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>
                   Pada level mana penguasaan {section.title.toLowerCase()} yang Anda harapkan dari fresh graduate Prodi TRR?
@@ -512,7 +541,7 @@ const Survey: React.FC = () => {
                 </p>
                 
                 {/* Header Row for scales */}
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', padding: '0 0.5rem' }}>
+                <div className="scale-header-container" style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', padding: '0 0.5rem' }}>
                   <div style={{ flex: 1 }}></div>
                   <div style={{ display: 'flex', width: '240px', justifyContent: 'space-between', paddingRight: '0.5rem' }}>
                     {gapScales.map(scale => (
@@ -527,7 +556,7 @@ const Survey: React.FC = () => {
                   {(section.questions || []).map((q: any, i: number) => {
                     const selectedValue = sectionAnswer.questions?.[q.id] || '0';
                     return (
-                      <div key={q.id} style={{ 
+                      <div key={q.id} className="competency-row" style={{ 
                         display: 'flex', 
                         alignItems: 'center', 
                         padding: '0.75rem 0.5rem', 
@@ -538,7 +567,11 @@ const Survey: React.FC = () => {
                           <span style={{ color: 'var(--primary)', fontWeight: 600, marginRight: '0.5rem' }}>{q.id}</span>
                           {q.text}
                         </div>
-                        <div style={{ display: 'flex', width: '240px', justifyContent: 'space-between', paddingRight: '0.5rem' }}>
+                        <div className="competency-scales" style={{ display: 'flex', width: '240px', justifyContent: 'space-between', paddingRight: '0.5rem' }}>
+                          <div className="scale-mobile-labels">
+                            {gapScales.map(scale => (<div key={scale.id} style={{ flex: 1, textAlign: 'center' }}>{scale.label}</div>))}
+                          </div>
+                          <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
                           {gapScales.map(scale => {
                             const isSelected = selectedValue === scale.id;
                             return (
@@ -564,6 +597,7 @@ const Survey: React.FC = () => {
                               </div>
                             );
                           })}
+                          </div>
                         </div>
                       </div>
                     );
@@ -581,6 +615,7 @@ const Survey: React.FC = () => {
                         {q.text}
                       </label>
                       <textarea
+                        id={`open-${q.id}`}
                         value={openAnswers[q.id] || ''}
                         onChange={(e) => handleOpenAnswerChange(q.id, e.target.value)}
                         placeholder="Ketik jawaban Anda di sini..."
@@ -654,13 +689,14 @@ const Survey: React.FC = () => {
         </button>
 
         {/* Page Number Buttons */}
-        <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', justifyContent: 'center', flex: 1, padding: '0 0.5rem' }}>
+        <div className="pagination-container" style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', justifyContent: 'center', flex: 1, padding: '0 0.5rem' }}>
           {Array.from({ length: totalSteps }, (_, i) => {
             const isActive = i === currentStep;
             const label = (i + 1).toString();
             return (
               <button
                 key={i}
+                className="pagination-btn"
                 onClick={() => {
                   setSearchParams({ step: i.toString() });
                   topRef.current?.scrollIntoView({ behavior: 'smooth' });
