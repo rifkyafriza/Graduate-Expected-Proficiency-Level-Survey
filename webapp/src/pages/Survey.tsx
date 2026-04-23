@@ -545,9 +545,9 @@ const Survey: React.FC = () => {
                 {/* Header Row for scales */}
                 <div className="scale-header-container" style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', padding: '0 0.5rem' }}>
                   <div style={{ flex: 1 }}></div>
-                  <div style={{ display: 'flex', width: '240px', justifyContent: 'space-between', paddingRight: '0.5rem' }}>
+                  <div style={{ display: 'flex', width: '360px', justifyContent: 'space-between', paddingRight: '0.5rem' }}>
                     {gapScales.map(scale => (
-                      <div key={scale.id} style={{ width: '80px', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                      <div key={scale.id} style={{ width: '120px', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500, whiteSpace: 'nowrap' }}>
                         {scale.label}
                       </div>
                     ))}
@@ -569,7 +569,7 @@ const Survey: React.FC = () => {
                           <span style={{ color: 'var(--primary)', fontWeight: 600, marginRight: '0.5rem' }}>{q.id}</span>
                           {q.text}
                         </div>
-                        <div className="competency-scales" style={{ display: 'flex', width: '240px', justifyContent: 'space-between', paddingRight: '0.5rem' }}>
+                        <div className="competency-scales" style={{ display: 'flex', width: '360px', justifyContent: 'space-between', paddingRight: '0.5rem' }}>
                           <div className="scale-mobile-labels">
                             {gapScales.map(scale => (<div key={scale.id} style={{ flex: 1, textAlign: 'center' }}>{scale.label}</div>))}
                           </div>
@@ -577,7 +577,7 @@ const Survey: React.FC = () => {
                           {gapScales.map(scale => {
                             const isSelected = selectedValue === scale.id;
                             return (
-                              <div key={scale.id} style={{ width: '80px', display: 'flex', justifyContent: 'center' }}>
+                              <div key={scale.id} style={{ width: '120px', display: 'flex', justifyContent: 'center' }}>
                                 <div 
                                   onClick={() => handleGapChange(section.id, q.id, scale.id)}
                                   style={{
