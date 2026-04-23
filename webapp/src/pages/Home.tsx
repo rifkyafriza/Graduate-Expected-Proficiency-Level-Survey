@@ -6,7 +6,7 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
 
   const packages = [
-    { id: 'P1', title: 'Pengguna Lulusan', icon: <Briefcase size={32} />, desc: 'Untuk HRD, Supervisor, atau Manajer industri.', color: 'var(--primary)' },
+    { id: 'P1', title: 'Pengguna Lulusan', icon: <Briefcase size={32} />, desc: 'Untuk HRD, Manajer, Supervisor atau Engineer industri.', color: 'var(--primary)' },
     { id: 'P2', title: 'Alumni', icon: <GraduationCap size={32} />, desc: 'Untuk lulusan Sarjana Terapan TRR.', color: 'var(--accent)' },
     { id: 'P3', title: 'Dosen', icon: <Users size={32} />, desc: 'Untuk tenaga pengajar program studi.', color: '#8b5cf6' }
   ];
