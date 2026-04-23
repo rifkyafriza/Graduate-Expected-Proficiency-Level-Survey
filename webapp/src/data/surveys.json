@@ -89,6 +89,16 @@
             "id": "1.4.b",
             "text": "Pembentukan karakter (Pancasila, Kewarganegaraan)"
           }
+        ],
+        "open_questions": [
+          {
+            "id": "A.1",
+            "text": "Teknologi atau tools apa yang PALING PENTING dikuasai fresh graduate sebelum mulai bekerja di perusahaan Anda?"
+          },
+          {
+            "id": "A.2",
+            "text": "Dalam 3–5 tahun ke depan, kompetensi atau teknologi baru apa yang menurut Anda harus mulai dimasukkan ke kurikulum Prodi TRR Polibatam?"
+          }
         ]
       },
       {
@@ -208,6 +218,12 @@
             "id": "2.5.5",
             "text": "Komitmen kesetaraan, merangkul keberagaman, dan inklusivitas di lingkungan kerja"
           }
+        ],
+        "open_questions": [
+          {
+            "id": "B.1",
+            "text": "Kompetensi personal/profesional apa yang paling sering KURANG pada lulusan yang Anda terima?"
+          }
         ]
       },
       {
@@ -272,6 +288,12 @@
           {
             "id": "3.3.2",
             "text": "Komunikasi dalam bahasa perdagangan regional yang relevan (mis. Mandarin, Melayu) untuk konteks industri Batam"
+          }
+        ],
+        "open_questions": [
+          {
+            "id": "C.1",
+            "text": "Kemampuan komunikasi atau kolaborasi apa yang paling sering perlu ditingkatkan pada lulusan yang Anda terima?"
           }
         ]
       },
@@ -411,6 +433,12 @@
             "id": "4.6.4",
             "text": "Peningkatan produk terencana (pre-planned improvement), perbaikan berbasis observasi operasional, upgrade sistem evolusioner, dan solusi kontingensi atas kebutuhan lapangan"
           }
+        ],
+        "open_questions": [
+          {
+            "id": "D.1",
+            "text": "Pada area proses pembuatan  produk, proses dan layanan, kemampuan mana yang paling SULIT ditemukan pada fresh graduate yang Anda terima?"
+          }
         ]
       },
       {
@@ -453,42 +481,61 @@
             "id": "5.3.3",
             "text": "Presentasi dan evaluasi riset: pelaporan ilmiah, validasi temuan, dan kontribusi terhadap pengetahuan yang ada"
           }
+        ],
+        "open_questions": [
+          {
+            "id": "E.1",
+            "text": "Pada area kepemimpinan di bidang engineering dan penelitian, kompetensi mana yang Anda harapkan ada pada lulusan Sarjana Terapan Teknologi Rekayasa Robotika?"
+          },
+          {
+            "id": "F.1",
+            "text": "Estimasi kebutuhan rekrutmen lulusan Sarjana Terapan Teknologi Rekayasa Robotika per tahun:"
+          },
+          {
+            "id": "F.2",
+            "text": "Hambatan utama yang membuat perusahaan TIDAK merekrut lebih banyak lulusan Sarjana Terapan Teknologi Rekayasa Robotika? (jika ada)"
+          }
         ]
       }
     ],
-    "open_questions": [
+    "bloom_taxonomy_explanation": [
       {
-        "id": "A.1",
-        "text": "Teknologi atau tools apa yang PALING PENTING dikuasai fresh graduate sebelum mulai bekerja di perusahaan Anda?"
+        "level": "C1",
+        "title": "Mengingat",
+        "description": "Mengingat kembali fakta, definisi, rumus, dan konsep dasar tanpa harus memahami maknanya"
       },
       {
-        "id": "A.2",
-        "text": "Dalam 3–5 tahun ke depan, kompetensi atau teknologi baru apa yang menurut Anda harus mulai dimasukkan ke kurikulum Prodi TRR Polibatam?"
+        "level": "C2",
+        "title": "Memahami",
+        "description": "Menjelaskan, menginterpretasi, memberi contoh, dan merangkum konsep dengan kata sendiri"
       },
       {
-        "id": "B.1",
-        "text": "Kompetensi personal/profesional apa yang paling sering KURANG pada lulusan yang Anda terima?"
+        "level": "C3",
+        "title": "Menerapkan",
+        "description": "Menggunakan pengetahuan/prosedur dalam situasi nyata, praktik lapangan, atau pemecahan masalah baru"
       },
       {
-        "id": "C.1",
-        "text": "Kemampuan komunikasi atau kolaborasi apa yang paling sering perlu ditingkatkan pada lulusan yang Anda terima?"
+        "level": "C4",
+        "title": "Menganalisis",
+        "description": "Mengurai komponen, membandingkan, mengklasifikasi, dan menarik kesimpulan dari data atau sistem"
       },
       {
-        "id": "D.1",
-        "text": "Pada area proses pembuatan  produk, proses dan layanan, kemampuan mana yang paling SULIT ditemukan pada fresh graduate yang Anda terima?"
+        "level": "C5",
+        "title": "Mengevaluasi",
+        "description": "Menilai, mengkritisi, dan membuat keputusan berdasarkan kriteria, standar, atau bukti yang relevan"
       },
       {
-        "id": "E.1",
-        "text": "Pada area kepemimpinan di bidang engineering dan penelitian, kompetensi mana yang Anda harapkan ada pada lulusan Sarjana Terapan Teknologi Rekayasa Robotika?"
-      },
-      {
-        "id": "F.1",
-        "text": "Estimasi kebutuhan rekrutmen lulusan Sarjana Terapan Teknologi Rekayasa Robotika per tahun:"
-      },
-      {
-        "id": "F.2",
-        "text": "Hambatan utama yang membuat perusahaan TIDAK merekrut lebih banyak lulusan Sarjana Terapan Teknologi Rekayasa Robotika? (jika ada)"
+        "level": "C6",
+        "title": "Mencipta",
+        "description": "Merancang, membangun, merumuskan, dan menghasilkan sistem/karya/konsep baru yang orisinal"
       }
+    ],
+    "tujuan_survey": [
+      "Survei ini merupakan bagian dari proses Revisi Kurikulum 5-Tahunan Program Studi Sarjana Terapan Teknologi Rekayasa Robotika Politeknik Negeri Batam, Tahun Akademik 2025/2026. Sesuai Panduan Kurikulum PTV Edisi Kedua 2024 (Kemendikbudristek), masukan dari pengguna lulusan adalah salah satu dari empat konsiderans utama dalam perancangan kurikulum berbasis OBE.",
+      "1. Mengukur relevansi kompetensi lulusan Prodi TRR dengan kebutuhan dunia industri saat ini dan dalam 3–5 tahun ke depan",
+      "2. Mengidentifikasi gap antara kompetensi yang dimiliki lulusan dan yang paling dibutuhkan industri — sebagai dasar revisi kurikulum",
+      "3. Mengumpulkan estimasi kebutuhan SDM bidang robotika & otomasi dari perspektif industri di Batam dan wilayah sekitarnya",
+      "4. Mendapatkan masukan untuk perancangan Kurikulum 2025 yang mengacu pada CDIO Syllabus 3.0, standar IABEE ETECH v2024, dan Panduan Kurikulum PTV Kemendikbudristek 2024"
     ]
   },
   {
@@ -581,6 +628,16 @@
             "id": "1.4.b",
             "text": "Pembentukan karakter (Pancasila, Kewarganegaraan)"
           }
+        ],
+        "open_questions": [
+          {
+            "id": "A.1",
+            "text": "Kompetensi teknis apa yang paling PENTING dalam pekerjaan Anda saat ini, yang saat kuliah di Prodi TRR belum cukup Anda kuasai?"
+          },
+          {
+            "id": "A.2",
+            "text": "Kompetensi atau teknologi baru apa yang ingin Anda pelajari ulang atau pelajari lebih dalam? Apakah sebaiknya sudah ada di kurikulum Prodi TRR?"
+          }
         ]
       },
       {
@@ -700,6 +757,12 @@
             "id": "2.5.5",
             "text": "Komitmen kesetaraan, merangkul keberagaman, dan inklusivitas di lingkungan kerja"
           }
+        ],
+        "open_questions": [
+          {
+            "id": "B.1",
+            "text": "Keterampilan personal atau profesional apa yang paling KURANG Anda rasakan kesiapannya saat pertama kali mulai bekerja?"
+          }
         ]
       },
       {
@@ -764,6 +827,12 @@
           {
             "id": "3.3.2",
             "text": "Komunikasi dalam bahasa perdagangan regional yang relevan (mis. Mandarin, Melayu) untuk konteks industri Batam"
+          }
+        ],
+        "open_questions": [
+          {
+            "id": "C.1",
+            "text": "Kemampuan komunikasi atau kolaborasi apa yang paling SERING Anda gunakan di tempat kerja dan paling membantu karir Anda?"
           }
         ]
       },
@@ -903,6 +972,12 @@
             "id": "4.6.4",
             "text": "Peningkatan produk terencana (pre-planned improvement), perbaikan berbasis observasi operasional, upgrade sistem evolusioner, dan solusi kontingensi atas kebutuhan lapangan"
           }
+        ],
+        "open_questions": [
+          {
+            "id": "D.1",
+            "text": "Pada area proses pembuatan  produk, proses dan layanan, kemampuan mana yang paling SERING Anda gunakan dan paling sulit dikuasai saat pertama kali bekerja?"
+          }
         ]
       },
       {
@@ -945,42 +1020,61 @@
             "id": "5.3.3",
             "text": "Presentasi dan evaluasi riset: pelaporan ilmiah, validasi temuan, dan kontribusi terhadap pengetahuan yang ada"
           }
+        ],
+        "open_questions": [
+          {
+            "id": "E.1",
+            "text": "Apakah kompetensi kepemimpinan di bidang engineering dan riset dibutuhkan dalam pekerjaan Anda? Ceritakan konteksnya."
+          },
+          {
+            "id": "F.1",
+            "text": "Kesesuaian pekerjaan saat ini dengan bidang Robotika / Otomasi:"
+          },
+          {
+            "id": "F.2",
+            "text": "Jika Anda bisa mengubah SATU HAL dari kurikulum Prodi TRR untuk mempersiapkan Anda lebih baik, apa itu?"
+          }
         ]
       }
     ],
-    "open_questions": [
+    "bloom_taxonomy_explanation": [
       {
-        "id": "A.1",
-        "text": "Kompetensi teknis apa yang paling PENTING dalam pekerjaan Anda saat ini, yang saat kuliah di Prodi TRR belum cukup Anda kuasai?"
+        "level": "C1",
+        "title": "Mengingat",
+        "description": "Mengingat kembali fakta, definisi, rumus, dan konsep dasar tanpa harus memahami maknanya"
       },
       {
-        "id": "A.2",
-        "text": "Kompetensi atau teknologi baru apa yang ingin Anda pelajari ulang atau pelajari lebih dalam? Apakah sebaiknya sudah ada di kurikulum Prodi TRR?"
+        "level": "C2",
+        "title": "Memahami",
+        "description": "Menjelaskan, menginterpretasi, memberi contoh, dan merangkum konsep dengan kata sendiri"
       },
       {
-        "id": "B.1",
-        "text": "Keterampilan personal atau profesional apa yang paling KURANG Anda rasakan kesiapannya saat pertama kali mulai bekerja?"
+        "level": "C3",
+        "title": "Menerapkan",
+        "description": "Menggunakan pengetahuan/prosedur dalam situasi nyata, praktik lapangan, atau pemecahan masalah baru"
       },
       {
-        "id": "C.1",
-        "text": "Kemampuan komunikasi atau kolaborasi apa yang paling SERING Anda gunakan di tempat kerja dan paling membantu karir Anda?"
+        "level": "C4",
+        "title": "Menganalisis",
+        "description": "Mengurai komponen, membandingkan, mengklasifikasi, dan menarik kesimpulan dari data atau sistem"
       },
       {
-        "id": "D.1",
-        "text": "Pada area proses pembuatan  produk, proses dan layanan, kemampuan mana yang paling SERING Anda gunakan dan paling sulit dikuasai saat pertama kali bekerja?"
+        "level": "C5",
+        "title": "Mengevaluasi",
+        "description": "Menilai, mengkritisi, dan membuat keputusan berdasarkan kriteria, standar, atau bukti yang relevan"
       },
       {
-        "id": "E.1",
-        "text": "Apakah kompetensi kepemimpinan di bidang engineering dan riset dibutuhkan dalam pekerjaan Anda? Ceritakan konteksnya."
-      },
-      {
-        "id": "F.1",
-        "text": "Kesesuaian pekerjaan saat ini dengan bidang Robotika / Otomasi:"
-      },
-      {
-        "id": "F.2",
-        "text": "Jika Anda bisa mengubah SATU HAL dari kurikulum Prodi TRR untuk mempersiapkan Anda lebih baik, apa itu?"
+        "level": "C6",
+        "title": "Mencipta",
+        "description": "Merancang, membangun, merumuskan, dan menghasilkan sistem/karya/konsep baru yang orisinal"
       }
+    ],
+    "tujuan_survey": [
+      "Survei ini merupakan bagian dari proses Revisi Kurikulum 5-Tahunan Program Studi Sarjana Terapan Teknologi Rekayasa Robotika Politeknik Negeri Batam, Tahun Akademik 2025/2026. Sebagai alumni, Anda adalah sumber informasi paling berharga tentang seberapa relevan kurikulum Prodi TRR dengan dunia kerja nyata.",
+      "1. Mengukur seberapa penting setiap kompetensi yang diajarkan di Prodi TRR terhadap kebutuhan nyata di tempat kerja Anda",
+      "2. Mengidentifikasi gap antara kompetensi yang diperoleh selama kuliah dan yang paling dibutuhkan di dunia industri",
+      "3. Mendapatkan gambaran kesesuaian kurikulum Prodi TRR dengan tuntutan pekerjaan dari perspektif alumni yang sudah berkarir",
+      "4. Mendapatkan masukan alumni untuk perancangan Kurikulum 2025 yang lebih relevan, praktis, dan siap kerja"
     ]
   },
   {
@@ -1073,6 +1167,16 @@
             "id": "1.4.b",
             "text": "Pembentukan karakter (Pancasila, Kewarganegaraan)"
           }
+        ],
+        "open_questions": [
+          {
+            "id": "A.1",
+            "text": "Area teknis apa yang PALING PERLU ditambahkan atau diperkuat di kurikulum 2025 untuk mencapai standar IABEE ETECH?"
+          },
+          {
+            "id": "A.2",
+            "text": "Kompetensi atau teknologi baru apa yang menurut Anda HARUS ada di kurikulum Prodi TRR dalam 3–5 tahun ke depan?"
+          }
         ]
       },
       {
@@ -1192,6 +1296,12 @@
             "id": "2.5.5",
             "text": "Komitmen kesetaraan, merangkul keberagaman, dan inklusivitas di lingkungan kerja"
           }
+        ],
+        "open_questions": [
+          {
+            "id": "B.1",
+            "text": "Keterampilan personal atau profesional apa yang menurut Anda masih paling KURANG dikuasai lulusan Prodi TRR?"
+          }
         ]
       },
       {
@@ -1256,6 +1366,12 @@
           {
             "id": "3.3.2",
             "text": "Komunikasi dalam bahasa perdagangan regional yang relevan (mis. Mandarin, Melayu) untuk konteks industri Batam"
+          }
+        ],
+        "open_questions": [
+          {
+            "id": "C.1",
+            "text": "Bagaimana cara terbaik mengintegrasikan pendekatan CDIO di kurikulum 2025? MK apa yang paling perlu dirombak atau dikembangkan?"
           }
         ]
       },
@@ -1395,6 +1511,12 @@
             "id": "4.6.4",
             "text": "Peningkatan produk terencana (pre-planned improvement), perbaikan berbasis observasi operasional, upgrade sistem evolusioner, dan solusi kontingensi atas kebutuhan lapangan"
           }
+        ],
+        "open_questions": [
+          {
+            "id": "D.1",
+            "text": "Pada area proses pembuatan  produk, proses dan layanan, tingkat kemahiran mana yang REALISTIS dicapai lulusan Prodi TRR, dan mana yang perlu paling banyak ditingkatkan?"
+          }
         ]
       },
       {
@@ -1437,42 +1559,61 @@
             "id": "5.3.3",
             "text": "Presentasi dan evaluasi riset: pelaporan ilmiah, validasi temuan, dan kontribusi terhadap pengetahuan yang ada"
           }
+        ],
+        "open_questions": [
+          {
+            "id": "E.1",
+            "text": "Seberapa penting kompetensi kepemimpinan di bidang engineering dan riset untuk lulusan Prodi TRR? Haruskah ada MK atau modul khusus untuk area ini?"
+          },
+          {
+            "id": "F.1",
+            "text": "MK apa yang PALING PERLU direvisi atau diperbarui di kurikulum 2025? Jelaskan alasannya."
+          },
+          {
+            "id": "F.2",
+            "text": "MK baru apa yang HARUS ADA di kurikulum 2025 untuk menjawab kebutuhan industri terkini?"
+          }
         ]
       }
     ],
-    "open_questions": [
+    "bloom_taxonomy_explanation": [
       {
-        "id": "A.1",
-        "text": "Area teknis apa yang PALING PERLU ditambahkan atau diperkuat di kurikulum 2025 untuk mencapai standar IABEE ETECH?"
+        "level": "C1",
+        "title": "Mengingat",
+        "description": "Mengingat kembali fakta, definisi, rumus, dan konsep dasar tanpa harus memahami maknanya"
       },
       {
-        "id": "A.2",
-        "text": "Kompetensi atau teknologi baru apa yang menurut Anda HARUS ada di kurikulum Prodi TRR dalam 3–5 tahun ke depan?"
+        "level": "C2",
+        "title": "Memahami",
+        "description": "Menjelaskan, menginterpretasi, memberi contoh, dan merangkum konsep dengan kata sendiri"
       },
       {
-        "id": "B.1",
-        "text": "Keterampilan personal atau profesional apa yang menurut Anda masih paling KURANG dikuasai lulusan Prodi TRR?"
+        "level": "C3",
+        "title": "Menerapkan",
+        "description": "Menggunakan pengetahuan/prosedur dalam situasi nyata, praktik lapangan, atau pemecahan masalah baru"
       },
       {
-        "id": "C.1",
-        "text": "Bagaimana cara terbaik mengintegrasikan pendekatan CDIO di kurikulum 2025? MK apa yang paling perlu dirombak atau dikembangkan?"
+        "level": "C4",
+        "title": "Menganalisis",
+        "description": "Mengurai komponen, membandingkan, mengklasifikasi, dan menarik kesimpulan dari data atau sistem"
       },
       {
-        "id": "D.1",
-        "text": "Pada area proses pembuatan  produk, proses dan layanan, tingkat kemahiran mana yang REALISTIS dicapai lulusan Prodi TRR, dan mana yang perlu paling banyak ditingkatkan?"
+        "level": "C5",
+        "title": "Mengevaluasi",
+        "description": "Menilai, mengkritisi, dan membuat keputusan berdasarkan kriteria, standar, atau bukti yang relevan"
       },
       {
-        "id": "E.1",
-        "text": "Seberapa penting kompetensi kepemimpinan di bidang engineering dan riset untuk lulusan Prodi TRR? Haruskah ada MK atau modul khusus untuk area ini?"
-      },
-      {
-        "id": "F.1",
-        "text": "MK apa yang PALING PERLU direvisi atau diperbarui di kurikulum 2025? Jelaskan alasannya."
-      },
-      {
-        "id": "F.2",
-        "text": "MK baru apa yang HARUS ADA di kurikulum 2025 untuk menjawab kebutuhan industri terkini?"
+        "level": "C6",
+        "title": "Mencipta",
+        "description": "Merancang, membangun, merumuskan, dan menghasilkan sistem/karya/konsep baru yang orisinal"
       }
+    ],
+    "tujuan_survey": [
+      "Survei ini merupakan bagian dari proses Revisi Kurikulum 5-Tahunan Program Studi Sarjana Terapan Teknologi Rekayasa Robotika Politeknik Negeri Batam, Tahun Akademik 2025/2026. Sebagai dosen yang mengampu mata kuliah di Prodi TRR, penilaian Anda tentang kompetensi yang harus dikuasai lulusan sangat krusial untuk merancang kurikulum yang kuat secara akademik maupun profesional.",
+      "1. Memahami harapan dan tingkat kemahiran yang dosen inginkan dari para lulusan Prodi TRR dalam berbagai bidang kompetensi CDIO",
+      "2. Mengidentifikasi gap antara target capaian kurikulum 2021 dengan ekspektasi dosen terhadap profil lulusan yang ideal",
+      "3. Mendapatkan penilaian dosen tentang kecukupan kurikulum dalam mengakomodasi CDIO Syllabus 3.0 dan standar IABEE ETECH",
+      "4. Mengumpulkan masukan dosen untuk perancangan Kurikulum 2025 yang lebih kuat dari sisi akademik dan profesional"
     ]
   }
 ]

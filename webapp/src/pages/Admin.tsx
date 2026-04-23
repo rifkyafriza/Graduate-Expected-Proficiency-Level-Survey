@@ -3,7 +3,7 @@ import {
   Box, Container, Typography, Card, CardContent, CardHeader,
   Tabs, Tab, Button, CircularProgress, Alert, Paper,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  TextField, IconButton, Divider
+  TextField, IconButton
 } from '@mui/material';
 import { Download, Save, Trash2, Plus, CheckCircle2, Server } from 'lucide-react';
 import surveysJsonData from '../data/surveys.json';
@@ -108,12 +108,12 @@ export default function Admin() {
             });
             allQuestionIds.set(sec.id, existing);
           }
-        });
-      }
-      if (pkg.open_questions) {
-        pkg.open_questions.forEach((oq: any) => {
-          if (!allOpenQuestionIds.includes(oq.id)) {
-            allOpenQuestionIds.push(oq.id);
+          if (sec.open_questions) {
+            sec.open_questions.forEach((oq: any) => {
+              if (!allOpenQuestionIds.includes(oq.id)) {
+                allOpenQuestionIds.push(oq.id);
+              }
+            });
           }
         });
       }
@@ -128,7 +128,13 @@ export default function Admin() {
     });
 
     // Build flat headers
-    const baseHeaders = ['ID', 'Package', 'Name', 'Email', 'Institution', 'Graduation Year', 'Created At'];
+    const baseHeaders = [
+      'ID', 'Kategori', 'Nama Lengkap', 'Email', 'Tahun Lulus / Angkatan',
+      'Instansi / Perusahaan', 'Jabatan / Posisi', 'Bidang Industri (P1)', 'Pernah Rekrut (P1)',
+      'Status Saat Ini (P2)', 'Bidang Pekerjaan (P2)', 'Masa Tunggu Kerja (P2)',
+      'NIDN/NUPTK (P3)', 'Bidang Keahlian Utama (P3)', 'MK yang Diampu (P3)', 'Lama Mengajar (P3)',
+      'Tanggal Pengisian'
+    ];
     const dynamicHeaders: string[] = [];
 
     allSectionIds.forEach(secId => {
@@ -149,11 +155,21 @@ export default function Admin() {
     const rows = results.map(r => {
       const base = [
         r.id,
-        escapeCSV(r.package_id),
+        escapeCSV(r.package_id === 'P1' ? 'Industri' : r.package_id === 'P2' ? 'Alumni' : r.package_id === 'P3' ? 'Dosen' : r.package_id),
         escapeCSV(r.respondent_data?.name || r.respondent_data?.nama || ''),
         escapeCSV(r.respondent_data?.email || ''),
-        escapeCSV(r.respondent_data?.institution || r.respondent_data?.instansi || ''),
         escapeCSV(r.respondent_data?.graduationYear || ''),
+        escapeCSV(r.respondent_data?.institution || r.respondent_data?.instansi || ''),
+        escapeCSV(r.respondent_data?.position || ''),
+        escapeCSV(r.respondent_data?.industry_sector || ''),
+        escapeCSV(r.respondent_data?.ever_recruited || ''),
+        escapeCSV(r.respondent_data?.current_status || ''),
+        escapeCSV(r.respondent_data?.job_sector || ''),
+        escapeCSV(r.respondent_data?.waiting_time || ''),
+        escapeCSV(r.respondent_data?.nidn || ''),
+        escapeCSV(r.respondent_data?.expertise || ''),
+        escapeCSV(r.respondent_data?.courses || ''),
+        escapeCSV(r.respondent_data?.teaching_duration || ''),
         escapeCSV(r.created_at)
       ];
 
@@ -347,7 +363,7 @@ export default function Admin() {
     return Object.keys(sectionCounts)
       .sort((a, b) => parseInt(a) - parseInt(b))
       .map(major => ({
-        name: `Section ${major}`,
+        name: `CDIO ${major}`,
         Kurang: sectionCounts[major]['-'],
         Sesuai: sectionCounts[major]['0'],
         Lebih: sectionCounts[major]['+'],
@@ -434,7 +450,7 @@ export default function Admin() {
 
           <Box sx={{ mb: 4 }}>
             <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white', borderRadius: 2, boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
-              <CardHeader title="Expected Proficiency Level by Section" />
+              <CardHeader title="Expected Proficiency Level by CDIO" />
               <CardContent sx={{ height: 400 }}>
                 {expectedProficiencyData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
@@ -491,7 +507,7 @@ export default function Admin() {
             </Box>
             <Box>
               <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white', borderRadius: 2, boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
-                <CardHeader title="Gap Evaluation by Section" />
+                <CardHeader title="Gap Evaluation by CDIO" />
                 <CardContent sx={{ height: 300 }}>
                   {gapDataByMajorSection.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
@@ -523,7 +539,7 @@ export default function Admin() {
                 <TableRow>
                   <TableCell sx={{ color: '#94a3b8' }}>ID</TableCell>
                   <TableCell sx={{ color: '#94a3b8' }}>Respondent</TableCell>
-                  <TableCell sx={{ color: '#94a3b8' }}>Package</TableCell>
+                  <TableCell sx={{ color: '#94a3b8' }}>Kategori</TableCell>
                   <TableCell sx={{ color: '#94a3b8' }}>Date</TableCell>
                   <TableCell sx={{ color: '#94a3b8' }}>Actions</TableCell>
                 </TableRow>
@@ -621,14 +637,14 @@ export default function Admin() {
 
         const dummyGapCounts: Record<string, { '-': number, '0': number, '+': number }> = {};
         dummyResults.forEach(r => { Object.keys(r.answers).forEach(sid => { const m = sid.split('.')[0]; if (!dummyGapCounts[m]) dummyGapCounts[m] = { '-': 0, '0': 0, '+': 0 }; const qs = r.answers[sid]?.questions; if (qs) Object.values(qs).forEach((v: any) => { if (dummyGapCounts[m][v as keyof typeof dummyGapCounts[typeof m]] !== undefined) dummyGapCounts[m][v as '-' | '0' | '+']++; }); }); });
-        const dummyGapData = Object.keys(dummyGapCounts).sort((a, b) => parseInt(a) - parseInt(b)).map(m => ({ name: `Section ${m}`, Kurang: dummyGapCounts[m]['-'], Sesuai: dummyGapCounts[m]['0'], Lebih: dummyGapCounts[m]['+'] }));
+        const dummyGapData = Object.keys(dummyGapCounts).sort((a, b) => parseInt(a) - parseInt(b)).map(m => ({ name: `CDIO ${m}`, Kurang: dummyGapCounts[m]['-'], Sesuai: dummyGapCounts[m]['0'], Lebih: dummyGapCounts[m]['+'] }));
 
         return (
           <Box>
             <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>Dummy Data Visualization (50 responses)</Typography>
             <Box sx={{ mb: 4 }}>
               <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white', borderRadius: 2 }}>
-                <CardHeader title="Expected Proficiency Level by Section (Dummy)" />
+                <CardHeader title="Expected Proficiency Level by CDIO (Dummy)" />
                 <CardContent sx={{ height: 400 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={dummyProfData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -661,7 +677,7 @@ export default function Admin() {
                 </CardContent>
               </Card>
               <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white' }}>
-                <CardHeader title="Gap Evaluation (Dummy)" />
+                <CardHeader title="Gap Evaluation by CDIO (Dummy)" />
                 <CardContent sx={{ height: 300 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={dummyGapData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -714,19 +730,19 @@ export default function Admin() {
                   variant="outlined"
                 />
 
-                <Typography variant="h6" gutterBottom>Sections</Typography>
+                <Typography variant="h6" gutterBottom>CDIOs</Typography>
                 {pkg.sections.map((sec: any, sIdx: number) => (
                   <Paper key={sIdx} sx={{ p: 2, mb: 2, background: 'rgba(15, 23, 42, 0.6)', border: '1px solid #334155' }}>
                     <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
                       <TextField
-                        label="Section ID"
+                        label="CDIO ID"
                         value={sec.id}
                         onChange={(e) => handleSectionChange(pIdx, sIdx, 'id', e.target.value)}
                         sx={{ width: '150px', input: { color: 'white' }, label: { color: '#94a3b8' } }}
                       />
                       <TextField
                         fullWidth
-                        label="Section Title"
+                        label="CDIO Title"
                         value={sec.title}
                         onChange={(e) => handleSectionChange(pIdx, sIdx, 'title', e.target.value)}
                         sx={{ input: { color: 'white' }, label: { color: '#94a3b8' } }}
@@ -741,7 +757,7 @@ export default function Admin() {
                       sx={{ mb: 2, textarea: { color: 'white' }, label: { color: '#94a3b8' } }}
                     />
 
-                    <Typography variant="subtitle2" sx={{ color: '#94a3b8', mb: 1 }}>Questions in Section</Typography>
+                    <Typography variant="subtitle2" sx={{ color: '#94a3b8', mb: 1 }}>Questions in CDIO</Typography>
                     {sec.questions.map((q: any, qIdx: number) => (
                       <Box key={qIdx} sx={{ display: 'flex', gap: 2, mb: 1, alignItems: 'center' }}>
                         <TextField
@@ -774,59 +790,50 @@ export default function Admin() {
                         </IconButton>
                       </Box>
                     ))}
+                    <Typography variant="subtitle2" sx={{ color: '#94a3b8', mb: 1, mt: 2 }}>Open Questions in CDIO</Typography>
+                    {(sec.open_questions || []).map((oq: any, oIdx: number) => (
+                      <Box key={`oq-${oIdx}`} sx={{ display: 'flex', gap: 2, mb: 1, alignItems: 'center' }}>
+                        <TextField
+                          value={oq.id}
+                          size="small"
+                          onChange={(e) => {
+                            const newSec = { ...sec };
+                            newSec.open_questions[oIdx].id = e.target.value;
+                            handleSectionChange(pIdx, sIdx, 'open_questions', newSec.open_questions);
+                          }}
+                          sx={{ width: '100px', input: { color: 'white' } }}
+                        />
+                        <TextField
+                          fullWidth
+                          value={oq.text}
+                          size="small"
+                          onChange={(e) => {
+                            const newSec = { ...sec };
+                            newSec.open_questions[oIdx].text = e.target.value;
+                            handleSectionChange(pIdx, sIdx, 'open_questions', newSec.open_questions);
+                          }}
+                          sx={{ input: { color: 'white' } }}
+                        />
+                        <IconButton color="error" size="small" onClick={() => {
+                          const newSec = { ...sec };
+                          newSec.open_questions.splice(oIdx, 1);
+                          handleSectionChange(pIdx, sIdx, 'open_questions', newSec.open_questions);
+                        }}>
+                          <Trash2 size={16} />
+                        </IconButton>
+                      </Box>
+                    ))}
                     <Button size="small" startIcon={<Plus size={16} />} sx={{ mt: 1 }} onClick={() => {
                       const newSec = { ...sec };
-                      newSec.questions.push({ id: `${sec.id}.${newSec.questions.length + 1}`, text: "New Question" });
-                      handleSectionChange(pIdx, sIdx, 'questions', newSec.questions);
+                      if (!newSec.open_questions) newSec.open_questions = [];
+                      newSec.open_questions.push({ id: `OQ.${sec.id}.${newSec.open_questions.length + 1}`, text: "New Open Question" });
+                      handleSectionChange(pIdx, sIdx, 'open_questions', newSec.open_questions);
                     }}>
-                      Add Question
+                      Add Open Question
                     </Button>
                   </Paper>
                 ))}
-                <Button variant="outlined" startIcon={<Plus size={16} />} sx={{ mb: 3 }}>Add Section</Button>
-
-                <Divider sx={{ my: 3, borderColor: '#334155' }} />
-
-                <Typography variant="h6" gutterBottom>Open Questions</Typography>
-                {pkg.open_questions && pkg.open_questions.map((oq: any, oIdx: number) => (
-                  <Box key={oIdx} sx={{ display: 'flex', gap: 2, mb: 1, alignItems: 'center' }}>
-                    <TextField
-                      value={oq.id}
-                      size="small"
-                      onChange={(e) => {
-                        const newOq = [...pkg.open_questions];
-                        newOq[oIdx].id = e.target.value;
-                        handleConfigChange(pIdx, 'open_questions', newOq);
-                      }}
-                      sx={{ width: '100px', input: { color: 'white' } }}
-                    />
-                    <TextField
-                      fullWidth
-                      value={oq.text}
-                      size="small"
-                      onChange={(e) => {
-                        const newOq = [...pkg.open_questions];
-                        newOq[oIdx].text = e.target.value;
-                        handleConfigChange(pIdx, 'open_questions', newOq);
-                      }}
-                      sx={{ input: { color: 'white' } }}
-                    />
-                    <IconButton color="error" size="small" onClick={() => {
-                      const newOq = [...pkg.open_questions];
-                      newOq.splice(oIdx, 1);
-                      handleConfigChange(pIdx, 'open_questions', newOq);
-                    }}>
-                      <Trash2 size={16} />
-                    </IconButton>
-                  </Box>
-                ))}
-                <Button size="small" startIcon={<Plus size={16} />} sx={{ mt: 1 }} onClick={() => {
-                  const newOq = [...(pkg.open_questions || [])];
-                  newOq.push({ id: `${newOq.length + 1}`, text: "New Open Question" });
-                  handleConfigChange(pIdx, 'open_questions', newOq);
-                }}>
-                  Add Open Question
-                </Button>
+                <Button variant="outlined" startIcon={<Plus size={16} />} sx={{ mb: 3 }}>Add CDIO</Button>
               </CardContent>
             </Card>
           ))}

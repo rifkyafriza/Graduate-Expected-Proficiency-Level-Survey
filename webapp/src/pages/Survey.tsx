@@ -34,7 +34,22 @@ const Survey: React.FC = () => {
   // State to hold answers
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [openAnswers, setOpenAnswers] = useState<Record<string, string>>({});
-  const [respondentData, setRespondentData] = useState({ name: '', email: '', institution: '', graduationYear: '' });
+  const [respondentData, setRespondentData] = useState({
+    name: '',
+    email: '',
+    institution: '',
+    graduationYear: '',
+    position: '',
+    industry_sector: '',
+    ever_recruited: '',
+    current_status: '',
+    job_sector: '',
+    waiting_time: '',
+    nidn: '',
+    expertise: '',
+    courses: '',
+    teaching_duration: ''
+  });
   const [initializedPackage, setInitializedPackage] = useState<string | null>(null);
 
   // Ref for auto-scroll
@@ -67,11 +82,21 @@ const Survey: React.FC = () => {
       if (parsed) {
         setAnswers(parsed.answers || initialAnswers);
         setOpenAnswers(parsed.openAnswers || {});
-        setRespondentData(parsed.respondentData || { name: '', email: '', institution: '', graduationYear: '' });
+        setRespondentData(parsed.respondentData || {
+          name: '', email: '', institution: '', graduationYear: '',
+          position: '', industry_sector: '', ever_recruited: '',
+          current_status: '', job_sector: '', waiting_time: '',
+          nidn: '', expertise: '', courses: '', teaching_duration: ''
+        });
       } else {
         setAnswers(initialAnswers);
         setOpenAnswers({});
-        setRespondentData({ name: '', email: '', institution: '', graduationYear: '' });
+        setRespondentData({
+          name: '', email: '', institution: '', graduationYear: '',
+          position: '', industry_sector: '', ever_recruited: '',
+          current_status: '', job_sector: '', waiting_time: '',
+          nidn: '', expertise: '', courses: '', teaching_duration: ''
+        });
       }
 
       if (packageId) {
@@ -112,23 +137,10 @@ const Survey: React.FC = () => {
     );
   }
 
-  const hasOpenQuestions = survey?.open_questions && survey.open_questions.length > 0;
-  const totalSteps = 1 + groupedSections.length + (hasOpenQuestions ? 1 : 0);
+  const totalSteps = 1 + groupedSections.length;
   const isFinalStep = currentStep === totalSteps - 1;
 
   const handleNext = async () => {
-    // Basic validation for Data Diri
-    if (currentStep === 0) {
-      if (!respondentData.name || !respondentData.email) {
-        alert('Mohon isi Nama Lengkap dan Email terlebih dahulu.');
-        return;
-      }
-      if (packageId === 'P2' && !respondentData.graduationYear) {
-        alert('Mohon isi Tahun Kelulusan terlebih dahulu.');
-        return;
-      }
-    }
-
     if (!isFinalStep) {
       setSearchParams({ step: (currentStep + 1).toString() });
       topRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -136,16 +148,37 @@ const Survey: React.FC = () => {
       // Comprehensive validation before submit
       // 1. Check respondent data
       if (!respondentData.name || !respondentData.email) {
-        alert('Mohon isi Nama Lengkap dan Email pada halaman Data Diri.');
+        alert('Mohon isi Nama Lengkap dan Email pada halaman Identitas.');
         setSearchParams({ step: '0' });
         topRef.current?.scrollIntoView({ behavior: 'smooth' });
         return;
       }
-      if (packageId === 'P2' && !respondentData.graduationYear) {
-        alert('Mohon isi Tahun Kelulusan pada halaman Data Diri.');
-        setSearchParams({ step: '0' });
-        topRef.current?.scrollIntoView({ behavior: 'smooth' });
-        return;
+
+      if (packageId === 'P1') {
+        if (!respondentData.position || !respondentData.institution || !respondentData.industry_sector || !respondentData.ever_recruited) {
+          alert('Mohon lengkapi semua field pada halaman Identitas Responden.');
+          setSearchParams({ step: '0' });
+          topRef.current?.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+      }
+
+      if (packageId === 'P2') {
+        if (!respondentData.graduationYear || !respondentData.current_status || !respondentData.job_sector || !respondentData.position || !respondentData.waiting_time) {
+          alert('Mohon lengkapi semua field pada halaman Identitas Responden.');
+          setSearchParams({ step: '0' });
+          topRef.current?.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+      }
+
+      if (packageId === 'P3') {
+        if (!respondentData.nidn || !respondentData.expertise || !respondentData.courses || !respondentData.teaching_duration) {
+          alert('Mohon lengkapi semua field pada halaman Identitas Responden.');
+          setSearchParams({ step: '0' });
+          topRef.current?.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
       }
 
       // 2. Check all sections have bloom level selected
@@ -167,15 +200,26 @@ const Survey: React.FC = () => {
       }
 
       // 3. Check all open questions are answered
-      if (hasOpenQuestions) {
-        const missingOpen = survey.open_questions.filter((q: any) => !openAnswers[q.id]?.trim());
-        if (missingOpen.length > 0) {
-          alert(`Mohon jawab semua pertanyaan terbuka:\n${missingOpen.map((q: any) => `${q.id}. ${q.text.substring(0, 60)}...`).join('\n')}`);
-          const openStep = 1 + groupedSections.length;
-          setSearchParams({ step: openStep.toString() });
-          topRef.current?.scrollIntoView({ behavior: 'smooth' });
-          return;
-        }
+      const missingOpen: string[] = [];
+      let firstMissingOpenPage = -1;
+      groupedSections.forEach((group, gIdx) => {
+        group.sections.forEach((sec: any) => {
+          if (sec.open_questions) {
+            sec.open_questions.forEach((q: any) => {
+              if (!openAnswers[q.id]?.trim()) {
+                missingOpen.push(`${q.id}. ${q.text.substring(0, 60)}...`);
+                if (firstMissingOpenPage === -1) firstMissingOpenPage = gIdx + 1;
+              }
+            });
+          }
+        });
+      });
+
+      if (missingOpen.length > 0) {
+        alert(`Mohon jawab semua pertanyaan terbuka:\n${missingOpen.join('\n')}`);
+        setSearchParams({ step: firstMissingOpenPage.toString() });
+        topRef.current?.scrollIntoView({ behavior: 'smooth' });
+        return;
       }
 
       setSubmitting(true);
@@ -234,12 +278,23 @@ const Survey: React.FC = () => {
   const renderDataDiri = () => {
     return (
       <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        {survey.tujuan_survey && (
+          <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1rem', borderLeft: '4px solid var(--primary)' }}>
+            <h2 style={{ fontSize: '1.25rem', color: 'var(--text-main)', marginBottom: '1rem' }}>Tujuan Survei</h2>
+            <ul style={{ color: 'var(--text-muted)', fontSize: '0.95rem', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {survey.tujuan_survey.map((tujuan: string, idx: number) => (
+                <li key={idx}>{tujuan}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
           <h2 style={{ fontSize: '1.75rem', color: 'var(--text-main)', marginBottom: '0.25rem' }}>
-            Data Diri Responden
+            IDENTITAS RESPONDEN
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>
-            Mohon lengkapi data diri Anda sebelum memulai survei.
+            Mohon lengkapi identitas Anda sebelum memulai survei.
           </p>
         </div>
 
@@ -264,29 +319,118 @@ const Survey: React.FC = () => {
               placeholder="Masukkan alamat email aktif"
             />
           </div>
-          {packageId === 'P2' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Tahun Kelulusan <span style={{ color: '#ef4444' }}>*</span></label>
-              <input
-                type="text"
-                value={respondentData.graduationYear}
-                onChange={e => setRespondentData(prev => ({ ...prev, graduationYear: e.target.value }))}
-                style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}
-                placeholder="Masukkan tahun kelulusan Anda"
-              />
-            </div>
+
+          {/* P1: Pengguna Lulusan */}
+          {packageId === 'P1' && (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Jabatan / Posisi <span style={{ color: '#ef4444' }}>*</span></label>
+                <input type="text" value={respondentData.position} onChange={e => setRespondentData(prev => ({ ...prev, position: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan jabatan/posisi Anda" />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Nama Perusahaan <span style={{ color: '#ef4444' }}>*</span></label>
+                <input type="text" value={respondentData.institution} onChange={e => setRespondentData(prev => ({ ...prev, institution: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan nama perusahaan" />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Bidang Industri <span style={{ color: '#ef4444' }}>*</span></label>
+                <select value={respondentData.industry_sector} onChange={e => setRespondentData(prev => ({ ...prev, industry_sector: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
+                  <option value="" style={{ color: '#0f172a' }}>Pilih Bidang Industri</option>
+                  <option value="Elektronik/Manufaktur" style={{ color: '#0f172a' }}>Elektronik/Manufaktur</option>
+                  <option value="Otomotif" style={{ color: '#0f172a' }}>Otomotif</option>
+                  <option value="Logistik/Warehousing" style={{ color: '#0f172a' }}>Logistik/Warehousing</option>
+                  <option value="Oil & Gas" style={{ color: '#0f172a' }}>Oil & Gas</option>
+                  <option value="Lainnya" style={{ color: '#0f172a' }}>Lainnya</option>
+                </select>
+                {respondentData.industry_sector === 'Lainnya' && (
+                  <input type="text" value={respondentData.industry_sector === 'Lainnya' ? '' : respondentData.industry_sector} onChange={e => setRespondentData(prev => ({ ...prev, industry_sector: e.target.value }))} placeholder="Sebutkan bidang industri lainnya" style={{ marginTop: '0.5rem', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} />
+                )}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Pernah Rekrut Alumni Robotika Polibatam <span style={{ color: '#ef4444' }}>*</span></label>
+                <select value={respondentData.ever_recruited} onChange={e => setRespondentData(prev => ({ ...prev, ever_recruited: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
+                  <option value="" style={{ color: '#0f172a' }}>Pilih Jawaban</option>
+                  <option value="Ya" style={{ color: '#0f172a' }}>Ya</option>
+                  <option value="Belum — tapi familiar" style={{ color: '#0f172a' }}>Belum — tapi familiar</option>
+                  <option value="Belum pernah" style={{ color: '#0f172a' }}>Belum pernah</option>
+                </select>
+              </div>
+            </>
           )}
-          {(packageId === 'P1' || packageId === 'P2') && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Instansi / Perusahaan</label>
-              <input
-                type="text"
-                value={respondentData.institution}
-                onChange={e => setRespondentData(prev => ({ ...prev, institution: e.target.value }))}
-                style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}
-                placeholder="Masukkan nama instansi atau perusahaan"
-              />
-            </div>
+
+          {/* P2: Alumni */}
+          {packageId === 'P2' && (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Tahun Kelulusan <span style={{ color: '#ef4444' }}>*</span></label>
+                <input type="number" min="1900" max="2100" value={respondentData.graduationYear} onChange={e => setRespondentData(prev => ({ ...prev, graduationYear: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan tahun kelulusan Anda" />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Status Saat Ini <span style={{ color: '#ef4444' }}>*</span></label>
+                <select value={respondentData.current_status} onChange={e => setRespondentData(prev => ({ ...prev, current_status: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
+                  <option value="" style={{ color: '#0f172a' }}>Pilih Status</option>
+                  <option value="Bekerja full-time" style={{ color: '#0f172a' }}>Bekerja full-time</option>
+                  <option value="Wirausaha" style={{ color: '#0f172a' }}>Wirausaha</option>
+                  <option value="Studi lanjut" style={{ color: '#0f172a' }}>Studi lanjut</option>
+                  <option value="Sedang mencari kerja" style={{ color: '#0f172a' }}>Sedang mencari kerja</option>
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Bidang Pekerjaan <span style={{ color: '#ef4444' }}>*</span></label>
+                <select value={respondentData.job_sector} onChange={e => setRespondentData(prev => ({ ...prev, job_sector: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
+                  <option value="" style={{ color: '#0f172a' }}>Pilih Bidang Pekerjaan</option>
+                  <option value="Robotika/Otomasi" style={{ color: '#0f172a' }}>Robotika/Otomasi</option>
+                  <option value="Elektronik/Elektro" style={{ color: '#0f172a' }}>Elektronik/Elektro</option>
+                  <option value="IT/Software" style={{ color: '#0f172a' }}>IT/Software</option>
+                  <option value="Lainnya" style={{ color: '#0f172a' }}>Lainnya</option>
+                </select>
+                {respondentData.job_sector === 'Lainnya' && (
+                  <input type="text" value={respondentData.job_sector === 'Lainnya' ? '' : respondentData.job_sector} onChange={e => setRespondentData(prev => ({ ...prev, job_sector: e.target.value }))} placeholder="Sebutkan bidang pekerjaan lainnya" style={{ marginTop: '0.5rem', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} />
+                )}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Jabatan / Posisi Saat Ini <span style={{ color: '#ef4444' }}>*</span></label>
+                <input type="text" value={respondentData.position} onChange={e => setRespondentData(prev => ({ ...prev, position: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan jabatan/posisi Anda saat ini" />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Masa Tunggu Kerja Setelah Lulus <span style={{ color: '#ef4444' }}>*</span></label>
+                <select value={respondentData.waiting_time} onChange={e => setRespondentData(prev => ({ ...prev, waiting_time: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
+                  <option value="" style={{ color: '#0f172a' }}>Pilih Masa Tunggu Kerja</option>
+                  <option value="< 1 bln" style={{ color: '#0f172a' }}>&lt; 1 bln</option>
+                  <option value="1–3 bln" style={{ color: '#0f172a' }}>1–3 bln</option>
+                  <option value="3–6 bln" style={{ color: '#0f172a' }}>3–6 bln</option>
+                  <option value="> 6 bln" style={{ color: '#0f172a' }}>&gt; 6 bln</option>
+                  <option value="N/A" style={{ color: '#0f172a' }}>N/A</option>
+                </select>
+              </div>
+            </>
+          )}
+
+          {/* P3: Dosen */}
+          {packageId === 'P3' && (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>NIDN/NUPTK <span style={{ color: '#ef4444' }}>*</span></label>
+                <input type="number" value={respondentData.nidn} onChange={e => setRespondentData(prev => ({ ...prev, nidn: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan NIDN/NUPTK Anda" />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Bidang Keahlian Utama <span style={{ color: '#ef4444' }}>*</span></label>
+                <input type="text" value={respondentData.expertise} onChange={e => setRespondentData(prev => ({ ...prev, expertise: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan bidang keahlian utama" />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>MK yang Diampu <span style={{ color: '#ef4444' }}>*</span></label>
+                <input type="text" value={respondentData.courses} onChange={e => setRespondentData(prev => ({ ...prev, courses: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan mata kuliah yang diampu" />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Lama Mengajar di Prodi TRR <span style={{ color: '#ef4444' }}>*</span></label>
+                <select value={respondentData.teaching_duration} onChange={e => setRespondentData(prev => ({ ...prev, teaching_duration: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
+                  <option value="" style={{ color: '#0f172a' }}>Pilih Lama Mengajar</option>
+                  <option value="< 2 thn" style={{ color: '#0f172a' }}>&lt; 2 thn</option>
+                  <option value="2–5 thn" style={{ color: '#0f172a' }}>2–5 thn</option>
+                  <option value="5–10 thn" style={{ color: '#0f172a' }}>5–10 thn</option>
+                  <option value="> 10 thn" style={{ color: '#0f172a' }}>&gt; 10 thn</option>
+                </select>
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -299,6 +443,23 @@ const Survey: React.FC = () => {
 
     return (
       <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        {survey.bloom_taxonomy_explanation && (
+          <div className="glass-panel" style={{ padding: '1.5rem', borderLeft: '4px solid #8b5cf6' }}>
+            <h3 style={{ fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '0.75rem' }}>Panduan Target Level (Taksonomi Bloom)</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+              {survey.bloom_taxonomy_explanation.map((explanation: any, idx: number) => {
+                const title = explanation.title || explanation.level;
+                const description = explanation.description || '';
+                return (
+                  <div key={idx} style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                    <strong style={{ color: 'var(--text-main)' }}>{explanation.level} - {title}</strong>{description ? `: ${description}` : ''}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {group.sections.map((section: any) => {
           const sectionAnswer = answers[section.id] || {};
 
@@ -409,56 +570,44 @@ const Survey: React.FC = () => {
                   })}
                 </div>
               </div>
+              {/* Open Questions inline */}
+              {section.open_questions && section.open_questions.length > 0 && (
+                <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1rem' }}>
+                  <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--accent)' }}>Pertanyaan Terbuka</h3>
+                  {section.open_questions.map((q: any) => (
+                    <div key={q.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                      <label style={{ fontSize: '1rem', fontWeight: 500, lineHeight: 1.4 }}>
+                        <span style={{ color: 'var(--accent)', marginRight: '0.5rem' }}>{q.id}.</span>
+                        {q.text}
+                      </label>
+                      <textarea
+                        value={openAnswers[q.id] || ''}
+                        onChange={(e) => handleOpenAnswerChange(q.id, e.target.value)}
+                        placeholder="Ketik jawaban Anda di sini..."
+                        style={{
+                          width: '100%',
+                          minHeight: '100px',
+                          padding: '0.75rem',
+                          borderRadius: 'var(--radius-md)',
+                          background: 'rgba(15, 23, 42, 0.6)',
+                          border: '1px solid var(--border-color)',
+                          color: 'white',
+                          fontFamily: 'inherit',
+                          fontSize: '0.95rem',
+                          resize: 'vertical',
+                          outline: 'none',
+                          transition: 'border-color 0.2s'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+                        onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           );
         })}
-      </div>
-    );
-  };
-
-  const renderOpenQuestions = () => {
-    return (
-      <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
-          <h2 style={{ fontSize: '1.75rem', color: 'var(--text-main)', marginBottom: '0.25rem' }}>
-            Pertanyaan Terbuka
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>
-            Mohon berikan masukan kualitatif Anda untuk penyusunan kurikulum.
-          </p>
-        </div>
-
-        <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {survey.open_questions && survey.open_questions.map((q: any) => (
-            <div key={q.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <label style={{ fontSize: '1rem', fontWeight: 500, lineHeight: 1.4 }}>
-                <span style={{ color: 'var(--accent)', marginRight: '0.5rem' }}>{q.id}.</span>
-                {q.text}
-              </label>
-              <textarea
-                value={openAnswers[q.id] || ''}
-                onChange={(e) => handleOpenAnswerChange(q.id, e.target.value)}
-                placeholder="Ketik jawaban Anda di sini..."
-                style={{
-                  width: '100%',
-                  minHeight: '100px',
-                  padding: '0.75rem',
-                  borderRadius: 'var(--radius-md)',
-                  background: 'rgba(15, 23, 42, 0.6)',
-                  border: '1px solid var(--border-color)',
-                  color: 'white',
-                  fontFamily: 'inherit',
-                  fontSize: '0.95rem',
-                  resize: 'vertical',
-                  outline: 'none',
-                  transition: 'border-color 0.2s'
-                }}
-                onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
-                onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
-              />
-            </div>
-          ))}
-        </div>
       </div>
     );
   };
@@ -490,9 +639,7 @@ const Survey: React.FC = () => {
       <div style={{ minHeight: '50vh' }}>
         {currentStep === 0
           ? renderDataDiri()
-          : currentStep <= groupedSections.length
-            ? renderGroupedSections()
-            : renderOpenQuestions()}
+          : renderGroupedSections()}
       </div>
 
       {/* Navigation */}
@@ -510,7 +657,7 @@ const Survey: React.FC = () => {
         <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', justifyContent: 'center', flex: 1, padding: '0 0.5rem' }}>
           {Array.from({ length: totalSteps }, (_, i) => {
             const isActive = i === currentStep;
-            const label = i === 0 ? 'Data' : i <= groupedSections.length ? i.toString() : 'Open';
+            const label = (i + 1).toString();
             return (
               <button
                 key={i}
@@ -535,7 +682,7 @@ const Survey: React.FC = () => {
                   justifyContent: 'center',
                   padding: 0
                 }}
-                title={i === 0 ? 'Data Diri' : i <= groupedSections.length ? `Section ${groupedSections[i - 1].id}` : 'Pertanyaan Terbuka'}
+                title={i === 0 ? 'Identitas Responden' : `CDIO ${groupedSections[i - 1].id}`}
               >
                 {label}
               </button>
