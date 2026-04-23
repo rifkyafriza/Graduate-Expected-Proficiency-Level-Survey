@@ -15,9 +15,9 @@ const bloomLevels = [
 ];
 
 const gapScales = [
-  { id: '-', label: '- (Lower)', color: '#ef4444' },
+  { id: '-', label: '- (Tidak Penting)', color: '#ef4444' },
   { id: '0', label: '0 (Normal)', color: '#3b82f6' },
-  { id: '+', label: '+ (Higher)', color: '#10b981' }
+  { id: '+', label: '+ (Penting)', color: '#10b981' }
 ];
 
 const Survey: React.FC = () => {
@@ -539,7 +539,7 @@ const Survey: React.FC = () => {
               <div className="glass-panel" style={{ padding: '1rem' }}>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>2. Evaluasi Sub-kompetensi</h3>
                 <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-                  Nilai kepentingan relatif tiap sub-kompetensi di bawah ini dengan skala - / 0 / +
+                  Mana sub kompetensi berikut yang menurut anda Penting atau Tidak Penting?
                 </p>
                 
                 {/* Header Row for scales */}
