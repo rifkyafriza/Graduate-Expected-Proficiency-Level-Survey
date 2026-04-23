@@ -333,7 +333,7 @@ const Survey: React.FC = () => {
               type="text"
               value={respondentData.name}
               onChange={e => setRespondentData(prev => ({ ...prev, name: e.target.value }))}
-              style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}
+              style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }}
               placeholder="Masukkan nama lengkap Anda"
             />
           </div>
@@ -345,7 +345,7 @@ const Survey: React.FC = () => {
                 type="email"
                 value={respondentData.email}
                 onChange={e => setRespondentData(prev => ({ ...prev, email: e.target.value }))}
-                style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}
+                style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }}
                 placeholder="Masukkan alamat email aktif"
               />
             </div>
@@ -356,33 +356,33 @@ const Survey: React.FC = () => {
             <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Jabatan / Posisi <span style={{ color: '#ef4444' }}>*</span></label>
-                <input id="identitas-position" type="text" value={respondentData.position} onChange={e => setRespondentData(prev => ({ ...prev, position: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan jabatan/posisi Anda" />
+                <input id="identitas-position" type="text" value={respondentData.position} onChange={e => setRespondentData(prev => ({ ...prev, position: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan jabatan/posisi Anda" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Nama Perusahaan <span style={{ color: '#ef4444' }}>*</span></label>
-                <input id="identitas-institution" type="text" value={respondentData.institution} onChange={e => setRespondentData(prev => ({ ...prev, institution: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan nama perusahaan" />
+                <input id="identitas-institution" type="text" value={respondentData.institution} onChange={e => setRespondentData(prev => ({ ...prev, institution: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan nama perusahaan" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Bidang Industri <span style={{ color: '#ef4444' }}>*</span></label>
-                <select id="identitas-industry_sector" value={respondentData.industry_sector} onChange={e => setRespondentData(prev => ({ ...prev, industry_sector: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
-                  <option value="" style={{ color: '#0f172a' }}>Pilih Bidang Industri</option>
-                  <option value="Elektronik/Manufaktur" style={{ color: '#0f172a' }}>Elektronik/Manufaktur</option>
-                  <option value="Otomotif" style={{ color: '#0f172a' }}>Otomotif</option>
-                  <option value="Logistik/Warehousing" style={{ color: '#0f172a' }}>Logistik/Warehousing</option>
-                  <option value="Oil & Gas" style={{ color: '#0f172a' }}>Oil & Gas</option>
-                  <option value="Lainnya" style={{ color: '#0f172a' }}>Lainnya</option>
+                <select id="identitas-industry_sector" value={respondentData.industry_sector} onChange={e => setRespondentData(prev => ({ ...prev, industry_sector: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }}>
+                  <option value="" style={{ color: 'var(--option-text)' }}>Pilih Bidang Industri</option>
+                  <option value="Elektronik/Manufaktur" style={{ color: 'var(--option-text)' }}>Elektronik/Manufaktur</option>
+                  <option value="Otomotif" style={{ color: 'var(--option-text)' }}>Otomotif</option>
+                  <option value="Logistik/Warehousing" style={{ color: 'var(--option-text)' }}>Logistik/Warehousing</option>
+                  <option value="Oil & Gas" style={{ color: 'var(--option-text)' }}>Oil & Gas</option>
+                  <option value="Lainnya" style={{ color: 'var(--option-text)' }}>Lainnya</option>
                 </select>
                 {respondentData.industry_sector === 'Lainnya' && (
-                  <input type="text" value={respondentData.industry_sector === 'Lainnya' ? '' : respondentData.industry_sector} onChange={e => setRespondentData(prev => ({ ...prev, industry_sector: e.target.value }))} placeholder="Sebutkan bidang industri lainnya" style={{ marginTop: '0.5rem', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} />
+                  <input type="text" value={respondentData.industry_sector === 'Lainnya' ? '' : respondentData.industry_sector} onChange={e => setRespondentData(prev => ({ ...prev, industry_sector: e.target.value }))} placeholder="Sebutkan bidang industri lainnya" style={{ marginTop: '0.5rem', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }} />
                 )}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Pernah Rekrut Alumni Robotika Polibatam <span style={{ color: '#ef4444' }}>*</span></label>
-                <select id="identitas-ever_recruited" value={respondentData.ever_recruited} onChange={e => setRespondentData(prev => ({ ...prev, ever_recruited: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
-                  <option value="" style={{ color: '#0f172a' }}>Pilih Jawaban</option>
-                  <option value="Ya" style={{ color: '#0f172a' }}>Ya</option>
-                  <option value="Belum — tapi familiar" style={{ color: '#0f172a' }}>Belum — tapi familiar</option>
-                  <option value="Belum pernah" style={{ color: '#0f172a' }}>Belum pernah</option>
+                <select id="identitas-ever_recruited" value={respondentData.ever_recruited} onChange={e => setRespondentData(prev => ({ ...prev, ever_recruited: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }}>
+                  <option value="" style={{ color: 'var(--option-text)' }}>Pilih Jawaban</option>
+                  <option value="Ya" style={{ color: 'var(--option-text)' }}>Ya</option>
+                  <option value="Belum — tapi familiar" style={{ color: 'var(--option-text)' }}>Belum — tapi familiar</option>
+                  <option value="Belum pernah" style={{ color: 'var(--option-text)' }}>Belum pernah</option>
                 </select>
               </div>
             </>
@@ -393,48 +393,48 @@ const Survey: React.FC = () => {
             <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Tahun Kelulusan <span style={{ color: '#ef4444' }}>*</span></label>
-                <input id="identitas-graduationYear" type="number" min="1900" max="2100" value={respondentData.graduationYear} onChange={e => setRespondentData(prev => ({ ...prev, graduationYear: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan tahun kelulusan Anda" />
+                <input id="identitas-graduationYear" type="number" min="1900" max="2100" value={respondentData.graduationYear} onChange={e => setRespondentData(prev => ({ ...prev, graduationYear: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan tahun kelulusan Anda" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Status Saat Ini <span style={{ color: '#ef4444' }}>*</span></label>
-                <select id="identitas-current_status" value={respondentData.current_status} onChange={e => setRespondentData(prev => ({ ...prev, current_status: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
-                  <option value="" style={{ color: '#0f172a' }}>Pilih Status</option>
-                  <option value="Bekerja full-time" style={{ color: '#0f172a' }}>Bekerja full-time</option>
-                  <option value="Wirausaha" style={{ color: '#0f172a' }}>Wirausaha</option>
-                  <option value="Studi lanjut" style={{ color: '#0f172a' }}>Studi lanjut</option>
-                  <option value="Sedang mencari kerja" style={{ color: '#0f172a' }}>Sedang mencari kerja</option>
+                <select id="identitas-current_status" value={respondentData.current_status} onChange={e => setRespondentData(prev => ({ ...prev, current_status: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }}>
+                  <option value="" style={{ color: 'var(--option-text)' }}>Pilih Status</option>
+                  <option value="Bekerja full-time" style={{ color: 'var(--option-text)' }}>Bekerja full-time</option>
+                  <option value="Wirausaha" style={{ color: 'var(--option-text)' }}>Wirausaha</option>
+                  <option value="Studi lanjut" style={{ color: 'var(--option-text)' }}>Studi lanjut</option>
+                  <option value="Sedang mencari kerja" style={{ color: 'var(--option-text)' }}>Sedang mencari kerja</option>
                 </select>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Bidang Pekerjaan <span style={{ color: '#ef4444' }}>*</span></label>
-                <select id="identitas-job_sector" value={respondentData.job_sector} onChange={e => setRespondentData(prev => ({ ...prev, job_sector: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
-                  <option value="" style={{ color: '#0f172a' }}>Pilih Bidang Pekerjaan</option>
-                  <option value="Robotika/Otomasi" style={{ color: '#0f172a' }}>Robotika/Otomasi</option>
-                  <option value="Elektronik/Elektro" style={{ color: '#0f172a' }}>Elektronik/Elektro</option>
-                  <option value="IT/Software" style={{ color: '#0f172a' }}>IT/Software</option>
-                  <option value="Lainnya" style={{ color: '#0f172a' }}>Lainnya</option>
+                <select id="identitas-job_sector" value={respondentData.job_sector} onChange={e => setRespondentData(prev => ({ ...prev, job_sector: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }}>
+                  <option value="" style={{ color: 'var(--option-text)' }}>Pilih Bidang Pekerjaan</option>
+                  <option value="Robotika/Otomasi" style={{ color: 'var(--option-text)' }}>Robotika/Otomasi</option>
+                  <option value="Elektronik/Elektro" style={{ color: 'var(--option-text)' }}>Elektronik/Elektro</option>
+                  <option value="IT/Software" style={{ color: 'var(--option-text)' }}>IT/Software</option>
+                  <option value="Lainnya" style={{ color: 'var(--option-text)' }}>Lainnya</option>
                 </select>
                 {respondentData.job_sector === 'Lainnya' && (
-                  <input type="text" value={respondentData.job_sector === 'Lainnya' ? '' : respondentData.job_sector} onChange={e => setRespondentData(prev => ({ ...prev, job_sector: e.target.value }))} placeholder="Sebutkan bidang pekerjaan lainnya" style={{ marginTop: '0.5rem', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} />
+                  <input type="text" value={respondentData.job_sector === 'Lainnya' ? '' : respondentData.job_sector} onChange={e => setRespondentData(prev => ({ ...prev, job_sector: e.target.value }))} placeholder="Sebutkan bidang pekerjaan lainnya" style={{ marginTop: '0.5rem', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }} />
                 )}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Perusahaan tempat bekerja saat ini <span style={{ color: '#ef4444' }}>*</span></label>
-                <input id="identitas-institution" type="text" value={respondentData.institution} onChange={e => setRespondentData(prev => ({ ...prev, institution: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan nama perusahaan tempat bekerja saat ini" />
+                <input id="identitas-institution" type="text" value={respondentData.institution} onChange={e => setRespondentData(prev => ({ ...prev, institution: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan nama perusahaan tempat bekerja saat ini" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Jabatan / Posisi Saat Ini <span style={{ color: '#ef4444' }}>*</span></label>
-                <input id="identitas-position" type="text" value={respondentData.position} onChange={e => setRespondentData(prev => ({ ...prev, position: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan jabatan/posisi Anda saat ini" />
+                <input id="identitas-position" type="text" value={respondentData.position} onChange={e => setRespondentData(prev => ({ ...prev, position: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan jabatan/posisi Anda saat ini" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Masa Tunggu Kerja Setelah Lulus <span style={{ color: '#ef4444' }}>*</span></label>
-                <select id="identitas-waiting_time" value={respondentData.waiting_time} onChange={e => setRespondentData(prev => ({ ...prev, waiting_time: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
-                  <option value="" style={{ color: '#0f172a' }}>Pilih Masa Tunggu Kerja</option>
-                  <option value="< 1 bln" style={{ color: '#0f172a' }}>&lt; 1 bln</option>
-                  <option value="1–3 bln" style={{ color: '#0f172a' }}>1–3 bln</option>
-                  <option value="3–6 bln" style={{ color: '#0f172a' }}>3–6 bln</option>
-                  <option value="> 6 bln" style={{ color: '#0f172a' }}>&gt; 6 bln</option>
-                  <option value="N/A" style={{ color: '#0f172a' }}>N/A</option>
+                <select id="identitas-waiting_time" value={respondentData.waiting_time} onChange={e => setRespondentData(prev => ({ ...prev, waiting_time: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }}>
+                  <option value="" style={{ color: 'var(--option-text)' }}>Pilih Masa Tunggu Kerja</option>
+                  <option value="< 1 bln" style={{ color: 'var(--option-text)' }}>&lt; 1 bln</option>
+                  <option value="1–3 bln" style={{ color: 'var(--option-text)' }}>1–3 bln</option>
+                  <option value="3–6 bln" style={{ color: 'var(--option-text)' }}>3–6 bln</option>
+                  <option value="> 6 bln" style={{ color: 'var(--option-text)' }}>&gt; 6 bln</option>
+                  <option value="N/A" style={{ color: 'var(--option-text)' }}>N/A</option>
                 </select>
               </div>
             </>
@@ -445,20 +445,20 @@ const Survey: React.FC = () => {
             <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Bidang Keahlian Utama <span style={{ color: '#ef4444' }}>*</span></label>
-                <input id="identitas-expertise" type="text" value={respondentData.expertise} onChange={e => setRespondentData(prev => ({ ...prev, expertise: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan bidang keahlian utama" />
+                <input id="identitas-expertise" type="text" value={respondentData.expertise} onChange={e => setRespondentData(prev => ({ ...prev, expertise: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan bidang keahlian utama" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>MK yang Diampu <span style={{ color: '#ef4444' }}>*</span></label>
-                <input id="identitas-courses" type="text" value={respondentData.courses} onChange={e => setRespondentData(prev => ({ ...prev, courses: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan mata kuliah yang diampu" />
+                <input id="identitas-courses" type="text" value={respondentData.courses} onChange={e => setRespondentData(prev => ({ ...prev, courses: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan mata kuliah yang diampu" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Lama Mengajar di Prodi TRR <span style={{ color: '#ef4444' }}>*</span></label>
-                <select id="identitas-teaching_duration" value={respondentData.teaching_duration} onChange={e => setRespondentData(prev => ({ ...prev, teaching_duration: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}>
-                  <option value="" style={{ color: '#0f172a' }}>Pilih Lama Mengajar</option>
-                  <option value="< 2 thn" style={{ color: '#0f172a' }}>&lt; 2 thn</option>
-                  <option value="2–5 thn" style={{ color: '#0f172a' }}>2–5 thn</option>
-                  <option value="5–10 thn" style={{ color: '#0f172a' }}>5–10 thn</option>
-                  <option value="> 10 thn" style={{ color: '#0f172a' }}>&gt; 10 thn</option>
+                <select id="identitas-teaching_duration" value={respondentData.teaching_duration} onChange={e => setRespondentData(prev => ({ ...prev, teaching_duration: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.95rem', outline: 'none' }}>
+                  <option value="" style={{ color: 'var(--option-text)' }}>Pilih Lama Mengajar</option>
+                  <option value="< 2 thn" style={{ color: 'var(--option-text)' }}>&lt; 2 thn</option>
+                  <option value="2–5 thn" style={{ color: 'var(--option-text)' }}>2–5 thn</option>
+                  <option value="5–10 thn" style={{ color: 'var(--option-text)' }}>5–10 thn</option>
+                  <option value="> 10 thn" style={{ color: 'var(--option-text)' }}>&gt; 10 thn</option>
                 </select>
               </div>
             </>
@@ -626,9 +626,9 @@ const Survey: React.FC = () => {
                           minHeight: '100px',
                           padding: '0.75rem',
                           borderRadius: 'var(--radius-md)',
-                          background: 'rgba(15, 23, 42, 0.6)',
+                          background: 'var(--bg-input)',
                           border: '1px solid var(--border-color)',
-                          color: 'white',
+                          color: 'var(--text-main)',
                           fontFamily: 'inherit',
                           fontSize: '0.95rem',
                           resize: 'vertical',
