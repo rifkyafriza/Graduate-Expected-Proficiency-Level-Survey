@@ -179,6 +179,7 @@ const Survey: React.FC = () => {
         if (!respondentData.graduationYear) return { id: 'identitas-graduationYear', msg: 'Mohon isi Tahun Kelulusan' };
         if (!respondentData.current_status) return { id: 'identitas-current_status', msg: 'Mohon isi Status Saat Ini' };
         if (!respondentData.job_sector) return { id: 'identitas-job_sector', msg: 'Mohon isi Bidang Pekerjaan' };
+        if (!respondentData.institution) return { id: 'identitas-institution', msg: 'Mohon isi Perusahaan tempat bekerja saat ini' };
         if (!respondentData.position) return { id: 'identitas-position', msg: 'Mohon isi Jabatan / Posisi' };
         if (!respondentData.waiting_time) return { id: 'identitas-waiting_time', msg: 'Mohon isi Masa Tunggu Kerja' };
       }
@@ -415,6 +416,10 @@ const Survey: React.FC = () => {
                 {respondentData.job_sector === 'Lainnya' && (
                   <input type="text" value={respondentData.job_sector === 'Lainnya' ? '' : respondentData.job_sector} onChange={e => setRespondentData(prev => ({ ...prev, job_sector: e.target.value }))} placeholder="Sebutkan bidang pekerjaan lainnya" style={{ marginTop: '0.5rem', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} />
                 )}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Perusahaan tempat bekerja saat ini <span style={{ color: '#ef4444' }}>*</span></label>
+                <input id="identitas-institution" type="text" value={respondentData.institution} onChange={e => setRespondentData(prev => ({ ...prev, institution: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan nama perusahaan tempat bekerja saat ini" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Jabatan / Posisi Saat Ini <span style={{ color: '#ef4444' }}>*</span></label>
