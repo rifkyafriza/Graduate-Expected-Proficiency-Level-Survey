@@ -132,7 +132,7 @@ export default function Admin() {
       'ID', 'Kategori', 'Nama Lengkap', 'Email', 'Tahun Lulus / Angkatan',
       'Instansi / Perusahaan', 'Jabatan / Posisi', 'Bidang Industri (P1)', 'Pernah Rekrut (P1)',
       'Status Saat Ini (P2)', 'Bidang Pekerjaan (P2)', 'Masa Tunggu Kerja (P2)',
-      'NIDN/NUPTK (P3)', 'Bidang Keahlian Utama (P3)', 'MK yang Diampu (P3)', 'Lama Mengajar (P3)',
+      'Bidang Keahlian Utama (P3)', 'MK yang Diampu (P3)', 'Lama Mengajar (P3)',
       'Tanggal Pengisian'
     ];
     const dynamicHeaders: string[] = [];
@@ -166,7 +166,6 @@ export default function Admin() {
         escapeCSV(r.respondent_data?.current_status || ''),
         escapeCSV(r.respondent_data?.job_sector || ''),
         escapeCSV(r.respondent_data?.waiting_time || ''),
-        escapeCSV(r.respondent_data?.nidn || ''),
         escapeCSV(r.respondent_data?.expertise || ''),
         escapeCSV(r.respondent_data?.courses || ''),
         escapeCSV(r.respondent_data?.teaching_duration || ''),

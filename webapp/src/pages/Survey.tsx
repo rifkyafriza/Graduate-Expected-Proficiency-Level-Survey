@@ -168,7 +168,7 @@ const Survey: React.FC = () => {
 
     const validateIdentitas = () => {
       if (!respondentData.name) return { id: 'identitas-name', msg: 'Mohon isi Nama Lengkap' };
-      if (!respondentData.email) return { id: 'identitas-email', msg: 'Mohon isi Email' };
+      if (packageId !== 'P3' && !respondentData.email) return { id: 'identitas-email', msg: 'Mohon isi Email' };
       if (packageId === 'P1') {
         if (!respondentData.position) return { id: 'identitas-position', msg: 'Mohon isi Jabatan / Posisi' };
         if (!respondentData.institution) return { id: 'identitas-institution', msg: 'Mohon isi Nama Perusahaan' };
@@ -184,7 +184,6 @@ const Survey: React.FC = () => {
         if (!respondentData.waiting_time) return { id: 'identitas-waiting_time', msg: 'Mohon isi Masa Tunggu Kerja' };
       }
       if (packageId === 'P3') {
-        if (!respondentData.nidn) return { id: 'identitas-nidn', msg: 'Mohon isi NIDN/NUPTK' };
         if (!respondentData.expertise) return { id: 'identitas-expertise', msg: 'Mohon isi Bidang Keahlian Utama' };
         if (!respondentData.courses) return { id: 'identitas-courses', msg: 'Mohon isi MK yang Diampu' };
         if (!respondentData.teaching_duration) return { id: 'identitas-teaching_duration', msg: 'Mohon isi Lama Mengajar' };
@@ -338,17 +337,19 @@ const Survey: React.FC = () => {
               placeholder="Masukkan nama lengkap Anda"
             />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Email <span style={{ color: '#ef4444' }}>*</span></label>
-            <input
-              id="identitas-email"
-              type="email"
-              value={respondentData.email}
-              onChange={e => setRespondentData(prev => ({ ...prev, email: e.target.value }))}
-              style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}
-              placeholder="Masukkan alamat email aktif"
-            />
-          </div>
+          {packageId !== 'P3' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Email <span style={{ color: '#ef4444' }}>*</span></label>
+              <input
+                id="identitas-email"
+                type="email"
+                value={respondentData.email}
+                onChange={e => setRespondentData(prev => ({ ...prev, email: e.target.value }))}
+                style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }}
+                placeholder="Masukkan alamat email aktif"
+              />
+            </div>
+          )}
 
           {/* P1: Pengguna Lulusan */}
           {packageId === 'P1' && (
@@ -442,10 +443,6 @@ const Survey: React.FC = () => {
           {/* P3: Dosen */}
           {packageId === 'P3' && (
             <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>NIDN/NUPTK <span style={{ color: '#ef4444' }}>*</span></label>
-                <input id="identitas-nidn" type="number" value={respondentData.nidn} onChange={e => setRespondentData(prev => ({ ...prev, nidn: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan NIDN/NUPTK Anda" />
-              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-main)' }}>Bidang Keahlian Utama <span style={{ color: '#ef4444' }}>*</span></label>
                 <input id="identitas-expertise" type="text" value={respondentData.expertise} onChange={e => setRespondentData(prev => ({ ...prev, expertise: e.target.value }))} style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', fontSize: '0.95rem', outline: 'none' }} placeholder="Masukkan bidang keahlian utama" />
