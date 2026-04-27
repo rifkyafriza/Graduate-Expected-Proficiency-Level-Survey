@@ -30,21 +30,27 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         top: 0,
         zIndex: 100
       }}>
-        <div style={{
-          background: 'var(--primary)',
-          padding: '0.5rem',
-          borderRadius: 'var(--radius-sm)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <BookOpen size={24} color="white" />
-        </div>
         <div style={{ flex: 1 }}>
           <Link to="/">
             <h1 style={{ fontSize: '1.25rem', color: 'var(--text-main)', margin: 0 }}>Validasi Kurikulum TRR 2025</h1>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: 0 }}>Politeknik Negeri Batam</p>
           </Link>
+        </div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <img
+            src={theme === 'dark' ? "/assets/logo-polibatam-light.png" : "/assets/logo-polibatam-dark.png"}
+            alt="Polibatam Logo"
+            style={{ height: '40px', objectFit: 'contain' }}
+          />
+          <img
+            src={theme === 'dark' ? "/assets/logo-cdio-light.png" : "/assets/logo-cdio-dark.png"}
+            alt="CDIO Logo"
+            style={{ height: '35px', objectFit: 'contain' }}
+          />
         </div>
         <button
           className="theme-toggle"
@@ -55,7 +61,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
       </header>
-      
+
       <main style={{
         flex: 1,
         padding: '2rem',
@@ -67,7 +73,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       }}>
         {children}
       </main>
-      
+
       <footer style={{
         padding: '2rem',
         textAlign: 'center',

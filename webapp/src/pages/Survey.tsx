@@ -520,8 +520,8 @@ const Survey: React.FC = () => {
                           padding: '0.5rem 1rem',
                           borderRadius: 'var(--radius-md)',
                           border: `2px solid ${isSelected ? 'var(--primary)' : 'var(--border-color)'}`,
-                          background: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
-                          color: isSelected ? 'white' : 'var(--text-muted)',
+                          background: isSelected ? 'var(--primary)' : 'transparent',
+                          color: isSelected ? '#fff' : 'var(--text-muted)',
                           transition: 'all 0.2s',
                           textAlign: 'center',
                           cursor: 'pointer'
@@ -562,7 +562,7 @@ const Survey: React.FC = () => {
                         display: 'flex', 
                         alignItems: 'center', 
                         padding: '0.75rem 0.5rem', 
-                        background: i % 2 === 0 ? 'rgba(30, 41, 59, 0.4)' : 'rgba(15, 23, 42, 0.2)',
+                        background: i % 2 === 0 ? 'var(--row-even)' : 'var(--row-odd)',
                         borderRadius: 'var(--radius-sm)'
                       }}>
                         <div style={{ flex: 1, fontSize: '0.9rem', lineHeight: 1.4, paddingRight: '1rem' }}>
@@ -584,16 +584,16 @@ const Survey: React.FC = () => {
                                     width: '20px',
                                     height: '20px',
                                     borderRadius: '50%',
-                                    border: `2px solid ${isSelected ? 'var(--primary)' : 'var(--text-muted)'}`,
+                                    border: `2px solid ${isSelected ? 'var(--primary)' : 'var(--border-color)'}`,
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     cursor: 'pointer',
-                                    background: 'transparent'
+                                    background: isSelected ? 'var(--primary)' : 'var(--bg-input)'
                                   }}
                                 >
                                   {isSelected && (
-                                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary)' }} />
+                                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fff' }} />
                                   )}
                                 </div>
                               </div>

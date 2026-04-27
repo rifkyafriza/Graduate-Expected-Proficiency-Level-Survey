@@ -364,9 +364,14 @@ export default function Admin() {
       .map(major => ({
         name: `CDIO ${major}`,
         Kurang: sectionCounts[major]['-'],
-        Sesuai: sectionCounts[major]['0'],
+        Normal: sectionCounts[major]['0'],
         Lebih: sectionCounts[major]['+'],
       }));
+  };
+
+  const getPackageLabel = (id: string) => {
+    const labels: Record<string, string> = { 'P1': 'Industri', 'P2': 'Alumni', 'P3': 'Dosen' };
+    return labels[id] || id;
   };
 
   const expectedProficiencyData = getExpectedProficiencyData();
@@ -519,9 +524,9 @@ export default function Admin() {
                           cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                         />
                         <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                        <Bar dataKey="Kurang" stackId="a" fill={GAP_COLORS['-']} radius={[0, 0, 4, 4]} />
-                        <Bar dataKey="Sesuai" stackId="a" fill={GAP_COLORS['0']} />
-                        <Bar dataKey="Lebih" stackId="a" fill={GAP_COLORS['+']} radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="Kurang" stackId="a" fill={GAP_COLORS['-']} radius={[0, 0, 4, 4]} name="Tidak Penting" />
+                        <Bar dataKey="Normal" stackId="a" fill={GAP_COLORS['0']} name="Normal" />
+                        <Bar dataKey="Lebih" stackId="a" fill={GAP_COLORS['+']} radius={[4, 4, 0, 0]} name="Penting" />
                       </BarChart>
                     </ResponsiveContainer>
                   ) : (
@@ -551,8 +556,22 @@ export default function Admin() {
                       <Typography variant="body2">{row.respondent_data?.name || row.respondent_data?.nama || 'Unknown'}</Typography>
                       <Typography variant="caption" sx={{ color: '#94a3b8' }}>{row.respondent_data?.email || ''}</Typography>
                     </TableCell>
-                    <TableCell sx={{ color: 'white' }}>{row.package_id}</TableCell>
-                    <TableCell sx={{ color: 'white' }}>{new Date(row.created_at).toLocaleString()}</TableCell>
+                    <TableCell sx={{ color: 'white' }}>{getPackageLabel(row.package_id)}</TableCell>
+                    <TableCell sx={{ color: 'white' }}>
+                      {new Date(row.created_at).toLocaleString()}
+                      {row.answers?.open_questions && Object.keys(row.answers.open_questions).length > 0 && (
+                        <Box sx={{ mt: 1, pt: 1, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                          <Typography variant="caption" sx={{ color: '#10b981', fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                            Open Answers:
+                          </Typography>
+                          {Object.entries(row.answers.open_questions).map(([key, value]) => (
+                            <Typography key={key} variant="caption" sx={{ display: 'block', color: '#94a3b8', fontStyle: 'italic', mb: 0.5 }}>
+                              • {String(value)}
+                            </Typography>
+                          ))}
+                        </Box>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <IconButton color="error" size="small" onClick={() => handleDeleteResponse(row.id)}>
                         <Trash2 size={16} />
@@ -685,9 +704,9 @@ export default function Admin() {
                       <YAxis stroke="#94a3b8" allowDecimals={false} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                       <RechartsTooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: 'white' }} />
                       <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                      <Bar dataKey="Kurang" stackId="a" fill={GAP_COLORS['-']} radius={[0, 0, 4, 4]} />
-                      <Bar dataKey="Sesuai" stackId="a" fill={GAP_COLORS['0']} />
-                      <Bar dataKey="Lebih" stackId="a" fill={GAP_COLORS['+']} radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="Kurang" stackId="a" fill={GAP_COLORS['-']} radius={[0, 0, 4, 4]} name="Tidak Penting" />
+                      <Bar dataKey="Normal" stackId="a" fill={GAP_COLORS['0']} name="Normal" />
+                      <Bar dataKey="Lebih" stackId="a" fill={GAP_COLORS['+']} radius={[4, 4, 0, 0]} name="Penting" />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
