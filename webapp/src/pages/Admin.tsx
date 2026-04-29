@@ -34,6 +34,7 @@ export default function Admin() {
   const [results, setResults] = useState<ResponseData[]>([]);
   const [error, setError] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('ALL');
+  const [alumniCutoff, setAlumniCutoff] = useState<number>(3);
 
   const [surveysConfig, setSurveysConfig] = useState<any[]>([]);
   const [savingConfig, setSavingConfig] = useState(false);
@@ -83,14 +84,37 @@ export default function Admin() {
     }
   };
 
+  // Helper to classify respondent into detailed category
+  const getDetailedCategory = (r: ResponseData): string => {
+    if (r.package_id === 'P1') return 'Industri';
+    if (r.package_id === 'P3') return 'Dosen';
+    if (r.package_id === 'P2') {
+      const gradYear = parseInt(r.respondent_data?.graduationYear);
+      const currentYear = new Date().getFullYear();
+      if (!isNaN(gradYear) && (currentYear - gradYear) >= alumniCutoff) {
+        return 'Alumni Senior';
+      }
+      return 'Alumni Junior';
+    }
+    return r.package_id;
+  };
+
   // Filtered results based on category filter
   const filteredResults = filterCategory === 'ALL'
     ? results
-    : results.filter(r => r.package_id === filterCategory);
+    : filterCategory === 'P2'
+      ? results.filter(r => r.package_id === 'P2')
+      : filterCategory === 'P2_JUNIOR'
+        ? results.filter(r => getDetailedCategory(r) === 'Alumni Junior')
+        : filterCategory === 'P2_SENIOR'
+          ? results.filter(r => getDetailedCategory(r) === 'Alumni Senior')
+          : results.filter(r => r.package_id === filterCategory);
 
   // Count stats
   const countIndustri = results.filter(r => r.package_id === 'P1').length;
   const countAlumni = results.filter(r => r.package_id === 'P2').length;
+  const countAlumniJunior = results.filter(r => getDetailedCategory(r) === 'Alumni Junior').length;
+  const countAlumniSenior = results.filter(r => getDetailedCategory(r) === 'Alumni Senior').length;
   const countDosen = results.filter(r => r.package_id === 'P3').length;
 
   const handleExportCSV = () => {
@@ -271,20 +295,15 @@ export default function Admin() {
 
   // Visualization Data Prep
   const getExpectedProficiencyData = () => {
-    const pkgMap: Record<string, string> = {
-      'P1': 'Industri',
-      'P2': 'Alumni',
-      'P3': 'Dosen'
-    };
-
     const bloomMap: Record<string, number> = {
       'C1': 1, 'C2': 2, 'C3': 3, 'C4': 4, 'C5': 5, 'C6': 6
     };
 
+    const groups = ['Industri', 'Alumni Junior', 'Alumni Senior', 'Dosen'];
     const sectionStats: Record<string, any> = {};
 
     filteredResults.forEach(r => {
-      const group = pkgMap[r.package_id];
+      const group = getDetailedCategory(r);
       if (!group || !r.answers) return;
 
       Object.keys(r.answers).forEach(secId => {
@@ -293,7 +312,7 @@ export default function Admin() {
           const bloomVal = bloomStr ? bloomMap[bloomStr] : null;
 
           if (bloomVal !== null && bloomVal !== undefined) {
-            let sectionTotalScore = bloomVal; // Base bloom score
+            let sectionTotalScore = bloomVal;
             let sectionComponentCount = 1;
 
             const qs = r.answers[secId]?.questions;
@@ -302,33 +321,35 @@ export default function Admin() {
                 let qScore = bloomVal;
                 if (val === '-') qScore -= 1;
                 else if (val === '+') qScore += 1;
-
-                // Enforce min 1, max 6 (C1=1 through C6=6)
                 qScore = Math.max(1, Math.min(6, qScore));
-
                 sectionTotalScore += qScore;
                 sectionComponentCount += 1;
               });
             }
 
             const averageScore = sectionTotalScore / sectionComponentCount;
+            const safeKey = group.replace(' ', '_');
 
             if (!sectionStats[secId]) {
-              sectionStats[secId] = { name: secId, IndustriSum: 0, IndustriCount: 0, AlumniSum: 0, AlumniCount: 0, DosenSum: 0, DosenCount: 0 };
+              const init: any = { name: secId };
+              groups.forEach(g => { const k = g.replace(' ', '_'); init[`${k}Sum`] = 0; init[`${k}Count`] = 0; });
+              sectionStats[secId] = init;
             }
-            sectionStats[secId][`${group}Sum`] += averageScore;
-            sectionStats[secId][`${group}Count`] += 1;
+            sectionStats[secId][`${safeKey}Sum`] += averageScore;
+            sectionStats[secId][`${safeKey}Count`] += 1;
           }
         }
       });
     });
 
-    return Object.values(sectionStats).map((stat: any) => ({
-      name: stat.name,
-      Industri: stat.IndustriCount > 0 ? Number((stat.IndustriSum / stat.IndustriCount).toFixed(2)) : 0,
-      Alumni: stat.AlumniCount > 0 ? Number((stat.AlumniSum / stat.AlumniCount).toFixed(2)) : 0,
-      Dosen: stat.DosenCount > 0 ? Number((stat.DosenSum / stat.DosenCount).toFixed(2)) : 0,
-    })).sort((a, b) => {
+    return Object.values(sectionStats).map((stat: any) => {
+      const row: any = { name: stat.name };
+      groups.forEach(g => {
+        const k = g.replace(' ', '_');
+        row[g] = stat[`${k}Count`] > 0 ? Number((stat[`${k}Sum`] / stat[`${k}Count`]).toFixed(2)) : 0;
+      });
+      return row;
+    }).sort((a, b) => {
       const [a1, a2] = a.name.split('.').map(Number);
       const [b1, b2] = b.name.split('.').map(Number);
       if (a1 !== b1) return a1 - b1;
@@ -383,9 +404,8 @@ export default function Admin() {
       }));
   };
 
-  const getPackageLabel = (id: string) => {
-    const labels: Record<string, string> = { 'P1': 'Industri', 'P2': 'Alumni', 'P3': 'Dosen' };
-    return labels[id] || id;
+  const getPackageLabel = (r: ResponseData) => {
+    return getDetailedCategory(r);
   };
 
   const expectedProficiencyData = getExpectedProficiencyData();
@@ -395,7 +415,7 @@ export default function Admin() {
   if (!isAuthenticated) {
     return (
       <Container maxWidth="sm" sx={{ py: 8 }}>
-        <Card sx={{ background: 'rgba(30, 41, 59, 0.9)', color: 'white', p: 4 }}>
+        <Card className="admin-card" sx={{ p: 4 }}>
           <CardContent>
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center', mb: 3 }}>
               🔒 Admin Login
@@ -404,13 +424,13 @@ export default function Admin() {
             <TextField
               fullWidth label="Username" value={loginUser}
               onChange={e => setLoginUser(e.target.value)}
-              sx={{ mb: 2, input: { color: 'white' }, label: { color: '#94a3b8' } }}
+              className="admin-input" sx={{ mb: 2 }}
               onKeyDown={e => e.key === 'Enter' && handleLogin()}
             />
             <TextField
               fullWidth label="Password" type="password" value={loginPass}
               onChange={e => setLoginPass(e.target.value)}
-              sx={{ mb: 3, input: { color: 'white' }, label: { color: '#94a3b8' } }}
+              className="admin-input" sx={{ mb: 3 }}
               onKeyDown={e => e.key === 'Enter' && handleLogin()}
             />
             <Button fullWidth variant="contained" onClick={handleLogin} size="large">
@@ -432,7 +452,7 @@ export default function Admin() {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'white', fontWeight: 'bold' }}>
+      <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'var(--text-main)', fontWeight: 'bold' }}>
         Admin Dashboard
       </Typography>
 
@@ -454,12 +474,12 @@ export default function Admin() {
             {[
               { label: 'Total', count: results.length, color: '#8b5cf6', icon: '📊' },
               { label: 'Industri', count: countIndustri, color: '#ef4444', icon: '🏭' },
-              { label: 'Alumni', count: countAlumni, color: '#3b82f6', icon: '🎓' },
+              { label: `Alumni (${countAlumni})`, count: countAlumni, color: '#3b82f6', icon: '🎓', sub: `Jr: ${countAlumniJunior} | Sr: ${countAlumniSenior}` },
               { label: 'Dosen', count: countDosen, color: '#f59e0b', icon: '👨‍🏫' },
             ].map(stat => (
               <Card key={stat.label} sx={{
                 flex: '1 1 140px',
-                background: 'rgba(30, 41, 59, 0.7)',
+                background: 'var(--bg-card)',
                 border: `1px solid ${stat.color}33`,
                 borderRadius: 2,
                 p: 2,
@@ -471,7 +491,10 @@ export default function Admin() {
                 <Box sx={{ fontSize: '1.75rem' }}>{stat.icon}</Box>
                 <Box>
                   <Typography variant="h5" sx={{ color: stat.color, fontWeight: 'bold', lineHeight: 1 }}>{stat.count}</Typography>
-                  <Typography variant="caption" sx={{ color: '#94a3b8' }}>{stat.label}</Typography>
+                  <Typography variant="caption" sx={{ color: 'var(--text-muted)' }}>{stat.label}</Typography>
+                  {(stat as any).sub && (
+                    <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.7rem', mt: 0.25 }}>{(stat as any).sub}</Typography>
+                  )}
                 </Box>
               </Card>
             ))}
@@ -479,26 +502,28 @@ export default function Admin() {
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="h6" sx={{ color: 'white' }}>Survey Submissions ({filteredResults.length})</Typography>
+              <Typography variant="h6" sx={{ color: 'var(--text-main)' }}>Survey Submissions ({filteredResults.length})</Typography>
               {/* Category Filter */}
               <select
                 value={filterCategory}
                 onChange={e => setFilterCategory(e.target.value)}
-                style={{
-                  padding: '0.5rem 1rem',
-                  borderRadius: '8px',
-                  background: 'rgba(15, 23, 42, 0.8)',
-                  border: '1px solid #334155',
-                  color: '#f8fafc',
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  outline: 'none'
-                }}
+                className="admin-select"
               >
                 <option value="ALL">Semua Kategori</option>
                 <option value="P1">Industri</option>
-                <option value="P2">Alumni</option>
+                <option value="P2">Alumni (Semua)</option>
+                <option value="P2_JUNIOR">Alumni Junior</option>
+                <option value="P2_SENIOR">Alumni Senior</option>
                 <option value="P3">Dosen</option>
+              </select>
+              {/* Alumni Cutoff Selector */}
+              <select
+                value={alumniCutoff}
+                onChange={e => setAlumniCutoff(Number(e.target.value))}
+                className="admin-select"
+              >
+                <option value={3}>Cutoff: 3 Tahun</option>
+                <option value={5}>Cutoff: 5 Tahun</option>
               </select>
             </Box>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
@@ -517,22 +542,23 @@ export default function Admin() {
           </Box>
 
           <Box sx={{ mb: 4 }}>
-            <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white', borderRadius: 2, boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+            <Card className="admin-card">
               <CardHeader title="Expected Proficiency Level by CDIO" />
               <CardContent sx={{ height: 400 }}>
                 {expectedProficiencyData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={expectedProficiencyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                      <XAxis dataKey="name" stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                      <YAxis domain={[0, 6]} stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                      <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 6]} stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
                       <RechartsTooltip
-                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: 'white' }}
+                        contentStyle={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-main)' }}
                         cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                       />
                       <Legend wrapperStyle={{ paddingTop: '20px' }} />
                       <Bar dataKey="Industri" fill="#ef4444" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="Alumni" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="Alumni Junior" fill="#38bdf8" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="Alumni Senior" fill="#1d4ed8" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="Dosen" fill="#f59e0b" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -545,7 +571,7 @@ export default function Admin() {
 
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 4, mb: 4 }}>
             <Box>
-              <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white' }}>
+              <Card className="admin-card">
                 <CardHeader title="Target Level Bloom Distribution" />
                 <CardContent sx={{ height: 300 }}>
                   {bloomData.length > 0 ? (
@@ -557,11 +583,11 @@ export default function Admin() {
                             <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.8} />
                           </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                        <XAxis dataKey="name" stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                        <YAxis stroke="#94a3b8" allowDecimals={false} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                        <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                        <YAxis stroke="var(--text-muted)" allowDecimals={false} tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
                         <RechartsTooltip
-                          contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: 'white' }}
+                          contentStyle={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-main)' }}
                           cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                         />
                         <Bar dataKey="count" fill="url(#colorBloom)" radius={[6, 6, 0, 0]} />
@@ -574,17 +600,17 @@ export default function Admin() {
               </Card>
             </Box>
             <Box>
-              <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white', borderRadius: 2, boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+              <Card className="admin-card">
                 <CardHeader title="Gap Evaluation by CDIO" />
                 <CardContent sx={{ height: 300 }}>
                   {gapDataByMajorSection.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={gapDataByMajorSection} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                        <XAxis dataKey="name" stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                        <YAxis stroke="#94a3b8" allowDecimals={false} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                        <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                        <YAxis stroke="var(--text-muted)" allowDecimals={false} tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
                         <RechartsTooltip
-                          contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: 'white' }}
+                          contentStyle={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-main)' }}
                           cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                         />
                         <Legend wrapperStyle={{ paddingTop: '20px' }} />
@@ -601,35 +627,37 @@ export default function Admin() {
             </Box>
           </Box>
 
-          <TableContainer component={Paper} sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white' }}>
+          <TableContainer component={Paper} className="admin-table-container">
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ color: '#94a3b8' }}>ID</TableCell>
-                  <TableCell sx={{ color: '#94a3b8' }}>Respondent</TableCell>
-                  <TableCell sx={{ color: '#94a3b8' }}>Kategori</TableCell>
-                  <TableCell sx={{ color: '#94a3b8' }}>Date</TableCell>
-                  <TableCell sx={{ color: '#94a3b8' }}>Actions</TableCell>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Respondent</TableCell>
+                  <TableCell>Kategori</TableCell>
+                  <TableCell>Thn Lulus</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredResults.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell sx={{ color: 'white' }}>{row.id}</TableCell>
-                    <TableCell sx={{ color: 'white' }}>
+                    <TableCell>{row.id}</TableCell>
+                    <TableCell>
                       <Typography variant="body2">{row.respondent_data?.name || row.respondent_data?.nama || 'Unknown'}</Typography>
-                      <Typography variant="caption" sx={{ color: '#94a3b8' }}>{row.respondent_data?.email || ''}</Typography>
+                      <Typography variant="caption" sx={{ color: 'var(--text-muted)' }}>{row.respondent_data?.email || ''}</Typography>
                     </TableCell>
-                    <TableCell sx={{ color: 'white' }}>{getPackageLabel(row.package_id)}</TableCell>
-                    <TableCell sx={{ color: 'white' }}>
+                    <TableCell>{getPackageLabel(row)}</TableCell>
+                    <TableCell>{row.package_id === 'P2' ? (row.respondent_data?.graduationYear || '-') : '-'}</TableCell>
+                    <TableCell>
                       {new Date(row.created_at).toLocaleString()}
                       {row.answers?.open_questions && Object.keys(row.answers.open_questions).length > 0 && (
-                        <Box sx={{ mt: 1, pt: 1, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                        <Box sx={{ mt: 1, pt: 1, borderTop: '1px solid var(--border-color)' }}>
                           <Typography variant="caption" sx={{ color: '#10b981', fontWeight: 'bold', display: 'block', mb: 0.5 }}>
                             Open Answers:
                           </Typography>
                           {Object.entries(row.answers.open_questions).map(([key, value]) => (
-                            <Typography key={key} variant="caption" sx={{ display: 'block', color: '#94a3b8', fontStyle: 'italic', mb: 0.5 }}>
+                            <Typography key={key} variant="caption" sx={{ display: 'block', color: 'var(--text-muted)', fontStyle: 'italic', mb: 0.5 }}>
                               • {String(value)}
                             </Typography>
                           ))}
@@ -645,7 +673,7 @@ export default function Admin() {
                 ))}
                 {filteredResults.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ color: '#94a3b8', py: 4 }}>No responses yet.</TableCell>
+                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>No responses yet.</TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -723,17 +751,17 @@ export default function Admin() {
 
         return (
           <Box>
-            <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>Dummy Data Visualization (50 responses)</Typography>
+            <Typography variant="h6" sx={{ color: 'var(--text-main)', mb: 2 }}>Dummy Data Visualization (50 responses)</Typography>
             <Box sx={{ mb: 4 }}>
-              <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white', borderRadius: 2 }}>
+              <Card className="admin-card">
                 <CardHeader title="Expected Proficiency Level by CDIO (Dummy)" />
                 <CardContent sx={{ height: 400 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={dummyProfData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                      <XAxis dataKey="name" stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                      <YAxis domain={[0, 6]} stroke="#94a3b8" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                      <RechartsTooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: 'white' }} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                      <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 6]} stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <RechartsTooltip contentStyle={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-main)' }} />
                       <Legend wrapperStyle={{ paddingTop: '20px' }} />
                       <Bar dataKey="Industri" fill="#ef4444" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="Alumni" fill="#3b82f6" radius={[4, 4, 0, 0]} />
@@ -784,7 +812,7 @@ export default function Admin() {
       {tab === 2 && (
         <Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6" sx={{ color: 'white' }}>Survey Configuration</Typography>
+            <Typography variant="h6" sx={{ color: 'var(--text-main)' }}>Survey Configuration</Typography>
             <Button
               variant="contained"
               color="primary"
@@ -797,7 +825,7 @@ export default function Admin() {
           </Box>
 
           {surveysConfig.map((pkg, pIdx) => (
-            <Card key={pIdx} sx={{ mb: 4, background: 'rgba(30, 41, 59, 0.7)', color: 'white' }}>
+            <Card key={pIdx} sx={{ mb: 4 }} className="admin-card">
               <CardHeader
                 title={`Package: ${pkg.id}`}
                 action={<IconButton color="error"><Trash2 size={20} /></IconButton>}
@@ -808,26 +836,26 @@ export default function Admin() {
                   label="Package Title"
                   value={pkg.title}
                   onChange={(e) => handleConfigChange(pIdx, 'title', e.target.value)}
-                  sx={{ mb: 3, input: { color: 'white' }, label: { color: '#94a3b8' } }}
+                  className="admin-input" sx={{ mb: 3 }}
                   variant="outlined"
                 />
 
                 <Typography variant="h6" gutterBottom>CDIOs</Typography>
                 {pkg.sections.map((sec: any, sIdx: number) => (
-                  <Paper key={sIdx} sx={{ p: 2, mb: 2, background: 'rgba(15, 23, 42, 0.6)', border: '1px solid #334155' }}>
+                  <Paper key={sIdx} className="admin-section-paper" sx={{ p: 2, mb: 2 }}>
                     <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
                       <TextField
                         label="CDIO ID"
                         value={sec.id}
                         onChange={(e) => handleSectionChange(pIdx, sIdx, 'id', e.target.value)}
-                        sx={{ width: '150px', input: { color: 'white' }, label: { color: '#94a3b8' } }}
+                        className="admin-input" sx={{ width: '150px' }}
                       />
                       <TextField
                         fullWidth
                         label="CDIO Title"
                         value={sec.title}
                         onChange={(e) => handleSectionChange(pIdx, sIdx, 'title', e.target.value)}
-                        sx={{ input: { color: 'white' }, label: { color: '#94a3b8' } }}
+                        className="admin-input"
                       />
                     </Box>
                     <TextField
@@ -836,32 +864,33 @@ export default function Admin() {
                       value={sec.description}
                       onChange={(e) => handleSectionChange(pIdx, sIdx, 'description', e.target.value)}
                       multiline rows={2}
-                      sx={{ mb: 2, textarea: { color: 'white' }, label: { color: '#94a3b8' } }}
+                      className="admin-input" sx={{ mb: 2 }}
                     />
 
-                    <Typography variant="subtitle2" sx={{ color: '#94a3b8', mb: 1 }}>Questions in CDIO</Typography>
+                    <Typography variant="subtitle2" sx={{ color: 'var(--text-muted)', mb: 1 }}>Questions in CDIO</Typography>
                     {sec.questions.map((q: any, qIdx: number) => (
                       <Box key={qIdx} sx={{ display: 'flex', gap: 2, mb: 1, alignItems: 'center' }}>
                         <TextField
                           value={q.id}
                           size="small"
+                          className="admin-input"
                           onChange={(e) => {
                             const newSec = { ...sec };
                             newSec.questions[qIdx].id = e.target.value;
                             handleSectionChange(pIdx, sIdx, 'questions', newSec.questions);
                           }}
-                          sx={{ width: '100px', input: { color: 'white' } }}
+                          sx={{ width: '100px' }}
                         />
                         <TextField
                           fullWidth
                           value={q.text}
                           size="small"
+                          className="admin-input"
                           onChange={(e) => {
                             const newSec = { ...sec };
                             newSec.questions[qIdx].text = e.target.value;
                             handleSectionChange(pIdx, sIdx, 'questions', newSec.questions);
                           }}
-                          sx={{ input: { color: 'white' } }}
                         />
                         <IconButton color="error" size="small" onClick={() => {
                           const newSec = { ...sec };
@@ -872,18 +901,19 @@ export default function Admin() {
                         </IconButton>
                       </Box>
                     ))}
-                    <Typography variant="subtitle2" sx={{ color: '#94a3b8', mb: 1, mt: 2 }}>Open Questions in CDIO</Typography>
+                    <Typography variant="subtitle2" sx={{ color: 'var(--text-muted)', mb: 1, mt: 2 }}>Open Questions in CDIO</Typography>
                     {(sec.open_questions || []).map((oq: any, oIdx: number) => (
                       <Box key={`oq-${oIdx}`} sx={{ display: 'flex', gap: 2, mb: 1, alignItems: 'center' }}>
                         <TextField
                           value={oq.id}
                           size="small"
+                          className="admin-input"
                           onChange={(e) => {
                             const newSec = { ...sec };
                             newSec.open_questions[oIdx].id = e.target.value;
                             handleSectionChange(pIdx, sIdx, 'open_questions', newSec.open_questions);
                           }}
-                          sx={{ width: '100px', input: { color: 'white' } }}
+                          sx={{ width: '100px' }}
                         />
                         <TextField
                           fullWidth
@@ -894,7 +924,7 @@ export default function Admin() {
                             newSec.open_questions[oIdx].text = e.target.value;
                             handleSectionChange(pIdx, sIdx, 'open_questions', newSec.open_questions);
                           }}
-                          sx={{ input: { color: 'white' } }}
+                          className="admin-input"
                         />
                         <IconButton color="error" size="small" onClick={() => {
                           const newSec = { ...sec };

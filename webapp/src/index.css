@@ -236,3 +236,65 @@ button {
     color: var(--text-muted);
   }
 }
+
+/* Admin dashboard theme-aware styles */
+.admin-card {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+}
+
+.admin-table-container {
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+}
+
+.admin-table-container .MuiTableCell-root {
+  color: var(--text-main) !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+.admin-table-container .MuiTableCell-head {
+  color: var(--text-muted) !important;
+  font-weight: 600;
+}
+
+.admin-select {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.875rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.admin-select option {
+  background: var(--bg-surface);
+  color: var(--text-main);
+}
+
+.admin-input .MuiInputBase-input,
+.admin-input .MuiOutlinedInput-input {
+  color: var(--text-main) !important;
+}
+
+.admin-input .MuiInputLabel-root {
+  color: var(--text-muted) !important;
+}
+
+.admin-input .MuiOutlinedInput-notchedOutline {
+  border-color: var(--border-color) !important;
+}
+
+.admin-input textarea {
+  color: var(--text-main) !important;
+}
+
+.admin-section-paper {
+  background: var(--bg-input) !important;
+  border: 1px solid var(--border-color) !important;
+}
