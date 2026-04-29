@@ -33,6 +33,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState<ResponseData[]>([]);
   const [error, setError] = useState('');
+  const [filterCategory, setFilterCategory] = useState<string>('ALL');
 
   const [surveysConfig, setSurveysConfig] = useState<any[]>([]);
   const [savingConfig, setSavingConfig] = useState(false);
@@ -82,10 +83,23 @@ export default function Admin() {
     }
   };
 
-  const handleExportCSV = () => {
-    if (results.length === 0) return;
+  // Filtered results based on category filter
+  const filteredResults = filterCategory === 'ALL'
+    ? results
+    : results.filter(r => r.package_id === filterCategory);
 
-    const escapeCSV = (val: any) => `"${String(val ?? '').replace(/"/g, '""')}"`;
+  // Count stats
+  const countIndustri = results.filter(r => r.package_id === 'P1').length;
+  const countAlumni = results.filter(r => r.package_id === 'P2').length;
+  const countDosen = results.filter(r => r.package_id === 'P3').length;
+
+  const handleExportCSV = () => {
+    if (filteredResults.length === 0) return;
+
+    const escapeCSV = (val: any) => {
+      const str = String(val ?? '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ');
+      return `"${str}"`;
+    };
 
     // Build dynamic column headers from survey config
     // Collect all unique section IDs, question IDs, and open question IDs across all packages
@@ -152,7 +166,7 @@ export default function Admin() {
     const headers = [...baseHeaders, ...dynamicHeaders];
 
     // Build rows
-    const rows = results.map(r => {
+    const rows = filteredResults.map(r => {
       const base = [
         r.id,
         escapeCSV(r.package_id === 'P1' ? 'Industri' : r.package_id === 'P2' ? 'Alumni' : r.package_id === 'P3' ? 'Dosen' : r.package_id),
@@ -269,7 +283,7 @@ export default function Admin() {
 
     const sectionStats: Record<string, any> = {};
 
-    results.forEach(r => {
+    filteredResults.forEach(r => {
       const group = pkgMap[r.package_id];
       if (!group || !r.answers) return;
 
@@ -324,7 +338,7 @@ export default function Admin() {
 
   const getBloomData = () => {
     const counts: Record<string, number> = {};
-    results.forEach(r => {
+    filteredResults.forEach(r => {
       if (!r.answers) return;
       Object.keys(r.answers).forEach(secId => {
         if (secId !== 'open_questions') {
@@ -338,7 +352,7 @@ export default function Admin() {
 
   const getGapDataByMajorSection = () => {
     const sectionCounts: Record<string, { '-': number, '0': number, '+': number }> = {};
-    results.forEach(r => {
+    filteredResults.forEach(r => {
       if (!r.answers) return;
       Object.keys(r.answers).forEach(secId => {
         if (secId !== 'open_questions') {
@@ -435,8 +449,58 @@ export default function Admin() {
       {/* TAB 0: Results */}
       {tab === 0 && (
         <Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6" sx={{ color: 'white' }}>Survey Submissions ({results.length})</Typography>
+          {/* Respondent Count Stats */}
+          <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+            {[
+              { label: 'Total', count: results.length, color: '#8b5cf6', icon: '📊' },
+              { label: 'Industri', count: countIndustri, color: '#ef4444', icon: '🏭' },
+              { label: 'Alumni', count: countAlumni, color: '#3b82f6', icon: '🎓' },
+              { label: 'Dosen', count: countDosen, color: '#f59e0b', icon: '👨‍🏫' },
+            ].map(stat => (
+              <Card key={stat.label} sx={{
+                flex: '1 1 140px',
+                background: 'rgba(30, 41, 59, 0.7)',
+                border: `1px solid ${stat.color}33`,
+                borderRadius: 2,
+                p: 2,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                minWidth: '140px'
+              }}>
+                <Box sx={{ fontSize: '1.75rem' }}>{stat.icon}</Box>
+                <Box>
+                  <Typography variant="h5" sx={{ color: stat.color, fontWeight: 'bold', lineHeight: 1 }}>{stat.count}</Typography>
+                  <Typography variant="caption" sx={{ color: '#94a3b8' }}>{stat.label}</Typography>
+                </Box>
+              </Card>
+            ))}
+          </Box>
+
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Typography variant="h6" sx={{ color: 'white' }}>Survey Submissions ({filteredResults.length})</Typography>
+              {/* Category Filter */}
+              <select
+                value={filterCategory}
+                onChange={e => setFilterCategory(e.target.value)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '8px',
+                  background: 'rgba(15, 23, 42, 0.8)',
+                  border: '1px solid #334155',
+                  color: '#f8fafc',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                <option value="ALL">Semua Kategori</option>
+                <option value="P1">Industri</option>
+                <option value="P2">Alumni</option>
+                <option value="P3">Dosen</option>
+              </select>
+            </Box>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               {backupStatus && (
                 <Typography variant="body2" sx={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -549,7 +613,7 @@ export default function Admin() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {results.map((row) => (
+                {filteredResults.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell sx={{ color: 'white' }}>{row.id}</TableCell>
                     <TableCell sx={{ color: 'white' }}>
@@ -579,7 +643,7 @@ export default function Admin() {
                     </TableCell>
                   </TableRow>
                 ))}
-                {results.length === 0 && (
+                {filteredResults.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={5} align="center" sx={{ color: '#94a3b8', py: 4 }}>No responses yet.</TableCell>
                   </TableRow>
