@@ -239,8 +239,8 @@ button {
 
 /* Admin dashboard theme-aware styles */
 .admin-card {
-  background: var(--bg-card);
-  color: var(--text-main);
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   box-shadow: var(--shadow-md);
