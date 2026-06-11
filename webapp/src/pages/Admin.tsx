@@ -35,6 +35,7 @@ export default function Admin() {
   const [error, setError] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('ALL');
   const [alumniCutoff, setAlumniCutoff] = useState<number>(3);
+  const [exportFormat, setExportFormat] = useState<'bloom' | 'cdio'>('bloom');
 
   const [surveysConfig, setSurveysConfig] = useState<any[]>([]);
   const [savingConfig, setSavingConfig] = useState(false);
@@ -176,10 +177,10 @@ export default function Admin() {
     const dynamicHeaders: string[] = [];
 
     allSectionIds.forEach(secId => {
-      dynamicHeaders.push(`${secId} Bloom`);
+      dynamicHeaders.push(exportFormat === 'bloom' ? `${secId} Bloom` : `${secId} CDIO Base Level`);
       const qIds = allQuestionIds.get(secId) || [];
       qIds.forEach(qId => {
-        dynamicHeaders.push(`${qId} Gap`);
+        dynamicHeaders.push(exportFormat === 'bloom' ? `${qId} Gap` : `${qId} CDIO Level`);
       });
     });
 
@@ -212,13 +213,43 @@ export default function Admin() {
 
       const dynamicValues: string[] = [];
 
+      const bloomMap: Record<string, number> = { 'C1': 1, 'C2': 2, 'C3': 3, 'C4': 4, 'C5': 5, 'C6': 6 };
+      const cdioNumberMap: Record<number, number> = { 1: 2, 2: 3, 3: 4, 4: 4, 5: 5, 6: 5 };
+      const bloomToCdioMap: Record<string, string> = {
+        'C1': 'Level 2', 'C2': 'Level 3', 'C3': 'Level 4', 'C4': 'Level 4', 'C5': 'Level 5', 'C6': 'Level 5'
+      };
+
       allSectionIds.forEach(secId => {
         const secAnswer = r.answers?.[secId];
-        dynamicValues.push(escapeCSV(secAnswer?.bloom || ''));
-        const qIds = allQuestionIds.get(secId) || [];
-        qIds.forEach(qId => {
-          dynamicValues.push(escapeCSV(secAnswer?.questions?.[qId] || ''));
-        });
+        const baseLevelStr = secAnswer?.bloom || '';
+        
+        if (exportFormat === 'bloom') {
+          dynamicValues.push(escapeCSV(baseLevelStr));
+          const qIds = allQuestionIds.get(secId) || [];
+          qIds.forEach(qId => {
+            dynamicValues.push(escapeCSV(secAnswer?.questions?.[qId] || ''));
+          });
+        } else {
+          // Export CDIO
+          const exportBaseLevelStr = baseLevelStr ? (bloomToCdioMap[baseLevelStr] || baseLevelStr) : baseLevelStr;
+          dynamicValues.push(escapeCSV(exportBaseLevelStr));
+          
+          const baseBloomVal = baseLevelStr ? bloomMap[baseLevelStr] : null;
+          const qIds = allQuestionIds.get(secId) || [];
+          
+          qIds.forEach(qId => {
+            const gapVal = secAnswer?.questions?.[qId];
+            if (baseBloomVal !== null && baseBloomVal !== undefined && gapVal) {
+              let s = baseBloomVal;
+              if (gapVal === '-') s -= 1;
+              else if (gapVal === '+') s += 1;
+              s = Math.max(1, Math.min(6, s));
+              dynamicValues.push(escapeCSV(`Level ${cdioNumberMap[s]}`));
+            } else {
+              dynamicValues.push(escapeCSV(''));
+            }
+          });
+        }
       });
 
       const openQs = r.answers?.open_questions || {};
@@ -357,6 +388,92 @@ export default function Admin() {
     });
   };
 
+  const getConvertedCdioProficiencyData = () => {
+    const bloomMap: Record<string, number> = {
+      'C1': 1, 'C2': 2, 'C3': 3, 'C4': 4, 'C5': 5, 'C6': 6
+    };
+    const cdioMap: Record<number, number> = {
+      1: 2, 2: 3, 3: 4, 4: 4, 5: 5, 6: 5
+    };
+
+    const groups = ['Industri', 'Alumni Junior', 'Alumni Senior', 'Dosen'];
+    const sectionStats: Record<string, any> = {};
+
+    filteredResults.forEach(r => {
+      const group = getDetailedCategory(r);
+      if (!group || !r.answers) return;
+
+      Object.keys(r.answers).forEach(secId => {
+        if (secId !== 'open_questions') {
+          const bloomStr = r.answers[secId]?.bloom;
+          const bloomVal = bloomStr ? bloomMap[bloomStr] : null;
+
+          if (bloomVal !== null && bloomVal !== undefined) {
+            let sectionTotalScore = 0;
+            let sectionComponentCount = 0;
+
+            const qs = r.answers[secId]?.questions;
+            if (qs && Object.keys(qs).length > 0) {
+              Object.values(qs).forEach((val: any) => {
+                let qScore = bloomVal;
+                if (val === '-') qScore -= 1;
+                else if (val === '+') qScore += 1;
+                qScore = Math.max(1, Math.min(6, qScore));
+                sectionTotalScore += cdioMap[qScore];
+                sectionComponentCount += 1;
+              });
+            } else {
+               sectionTotalScore += cdioMap[bloomVal];
+               sectionComponentCount += 1;
+            }
+
+            const averageScore = sectionTotalScore / sectionComponentCount;
+            const safeKey = group.replace(' ', '_');
+
+            if (!sectionStats[secId]) {
+              const init: any = { name: secId };
+              groups.forEach(g => { const k = g.replace(' ', '_'); init[`${k}Sum`] = 0; init[`${k}Count`] = 0; });
+              sectionStats[secId] = init;
+            }
+            sectionStats[secId][`${safeKey}Sum`] += averageScore;
+            sectionStats[secId][`${safeKey}Count`] += 1;
+          }
+        }
+      });
+    });
+
+    return Object.values(sectionStats).map((stat: any) => {
+      const row: any = { name: stat.name };
+      groups.forEach(g => {
+        const k = g.replace(' ', '_');
+        row[g] = stat[`${k}Count`] > 0 ? Number((stat[`${k}Sum`] / stat[`${k}Count`]).toFixed(2)) : 0;
+      });
+      return row;
+    }).sort((a, b) => {
+      const [a1, a2] = a.name.split('.').map(Number);
+      const [b1, b2] = b.name.split('.').map(Number);
+      if (a1 !== b1) return a1 - b1;
+      return (a2 || 0) - (b2 || 0);
+    });
+  };
+
+  const getCdioDistributionData = () => {
+    const counts: Record<string, number> = { 'Level 2': 0, 'Level 3': 0, 'Level 4': 0, 'Level 5': 0 };
+    const bloomToCdioMap: Record<string, string> = {
+      'C1': 'Level 2', 'C2': 'Level 3', 'C3': 'Level 4', 'C4': 'Level 4', 'C5': 'Level 5', 'C6': 'Level 5'
+    };
+    filteredResults.forEach(r => {
+      if (!r.answers) return;
+      Object.keys(r.answers).forEach(secId => {
+        if (secId !== 'open_questions') {
+          const bloom = r.answers[secId]?.bloom;
+          if (bloom && bloomToCdioMap[bloom]) counts[bloomToCdioMap[bloom]]++;
+        }
+      });
+    });
+    return Object.keys(counts).map(k => ({ name: k, count: counts[k] })).sort((a, b) => a.name.localeCompare(b.name));
+  };
+
   const getBloomData = () => {
     const counts: Record<string, number> = {};
     filteredResults.forEach(r => {
@@ -409,7 +526,9 @@ export default function Admin() {
   };
 
   const expectedProficiencyData = getExpectedProficiencyData();
+  const convertedCdioProficiencyData = getConvertedCdioProficiencyData();
   const bloomData = getBloomData();
+  const cdioDistributionData = getCdioDistributionData();
   const gapDataByMajorSection = getGapDataByMajorSection();
 
   if (!isAuthenticated) {
@@ -527,6 +646,14 @@ export default function Admin() {
               </select>
             </Box>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <select
+                value={exportFormat}
+                onChange={e => setExportFormat(e.target.value as 'bloom' | 'cdio')}
+                className="admin-select"
+              >
+                <option value="bloom">Export: Bloom Level</option>
+                <option value="cdio">Export: CDIO Level</option>
+              </select>
               {backupStatus && (
                 <Typography variant="body2" sx={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: 1 }}>
                   <CheckCircle2 size={16} /> {backupStatus}
@@ -569,7 +696,64 @@ export default function Admin() {
             </Card>
           </Box>
 
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 4, mb: 4 }}>
+          <Box sx={{ mb: 4 }}>
+            <Card className="admin-card">
+              <CardHeader title="CDIO Proficiency Rating Scale (Converted)" />
+              <CardContent sx={{ height: 400 }}>
+                {convertedCdioProficiencyData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={convertedCdioProficiencyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                      <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <RechartsTooltip
+                        contentStyle={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-main)' }}
+                        cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+                      />
+                      <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                      <Bar dataKey="Industri" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="Alumni Junior" fill="#38bdf8" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="Alumni Senior" fill="#1d4ed8" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="Dosen" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <Typography color="textSecondary" align="center" sx={{ mt: 10 }}>No data available</Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Box>
+
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr 1fr' }, gap: 4, mb: 4 }}>
+            <Box>
+              <Card className="admin-card">
+                <CardHeader title="Target Level CDIO Distribution" />
+                <CardContent sx={{ height: 300 }}>
+                  {cdioDistributionData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={cdioDistributionData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorCdio" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="#059669" stopOpacity={0.8} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                        <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                        <YAxis stroke="var(--text-muted)" allowDecimals={false} tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                        <RechartsTooltip
+                          contentStyle={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-main)' }}
+                          cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+                        />
+                        <Bar dataKey="count" fill="url(#colorCdio)" radius={[6, 6, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <Typography color="textSecondary" align="center" sx={{ mt: 10 }}>No data available</Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Box>
             <Box>
               <Card className="admin-card">
                 <CardHeader title="Target Level Bloom Distribution" />
@@ -741,9 +925,56 @@ export default function Admin() {
           Dosen: s.DosenCount > 0 ? Number((s.DosenSum / s.DosenCount).toFixed(2)) : 0,
         })).sort((a, b) => { const [a1, a2] = a.name.split('.').map(Number); const [b1, b2] = b.name.split('.').map(Number); return a1 !== b1 ? a1 - b1 : (a2 || 0) - (b2 || 0); });
 
+        const dummyConvertedSectionStats: Record<string, any> = {};
+        dummyResults.forEach(r => {
+          const group = pkgMap[r.package_id];
+          Object.keys(r.answers).forEach(secId => {
+            const bloomStr = r.answers[secId]?.bloom;
+            const bloomVal = bloomStr ? bloomMap[bloomStr] : null;
+            if (bloomVal !== null && bloomVal !== undefined) {
+              let total = 0, count = 0;
+              const qs = r.answers[secId]?.questions;
+              const cdioMap: Record<number, number> = { 1: 2, 2: 3, 3: 4, 4: 4, 5: 5, 6: 5 };
+              if (qs && Object.keys(qs).length > 0) {
+                 Object.values(qs).forEach((v: any) => { 
+                    let s = bloomVal; 
+                    if (v === '-') s -= 1; 
+                    else if (v === '+') s += 1; 
+                    s = Math.max(1, Math.min(6, s)); 
+                    total += cdioMap[s]; 
+                    count++; 
+                 });
+              } else {
+                 total += cdioMap[bloomVal];
+                 count++;
+              }
+              const avg = total / count;
+              if (!dummyConvertedSectionStats[secId]) dummyConvertedSectionStats[secId] = { name: secId, IndustriSum: 0, IndustriCount: 0, AlumniSum: 0, AlumniCount: 0, DosenSum: 0, DosenCount: 0 };
+              dummyConvertedSectionStats[secId][`${group}Sum`] += avg;
+              dummyConvertedSectionStats[secId][`${group}Count`] += 1;
+            }
+          });
+        });
+        const dummyConvertedProfData = Object.values(dummyConvertedSectionStats).map((s: any) => ({
+          name: s.name,
+          Industri: s.IndustriCount > 0 ? Number((s.IndustriSum / s.IndustriCount).toFixed(2)) : 0,
+          Alumni: s.AlumniCount > 0 ? Number((s.AlumniSum / s.AlumniCount).toFixed(2)) : 0,
+          Dosen: s.DosenCount > 0 ? Number((s.DosenSum / s.DosenCount).toFixed(2)) : 0,
+        })).sort((a, b) => { const [a1, a2] = a.name.split('.').map(Number); const [b1, b2] = b.name.split('.').map(Number); return a1 !== b1 ? a1 - b1 : (a2 || 0) - (b2 || 0); });
+
         const dummyBloomCounts: Record<string, number> = {};
         dummyResults.forEach(r => { Object.keys(r.answers).forEach(sid => { const b = r.answers[sid]?.bloom; if (b) dummyBloomCounts[b] = (dummyBloomCounts[b] || 0) + 1; }); });
         const dummyBloomData = Object.keys(dummyBloomCounts).sort().map(k => ({ name: k, count: dummyBloomCounts[k] }));
+
+        const dummyCdioDistributionCounts: Record<string, number> = { 'Level 2': 0, 'Level 3': 0, 'Level 4': 0, 'Level 5': 0 };
+        const bloomToCdioStrMap: Record<string, string> = { 'C1': 'Level 2', 'C2': 'Level 3', 'C3': 'Level 4', 'C4': 'Level 4', 'C5': 'Level 5', 'C6': 'Level 5' };
+        dummyResults.forEach(r => {
+          Object.keys(r.answers).forEach(sid => {
+            const b = r.answers[sid]?.bloom;
+            if (b && bloomToCdioStrMap[b]) dummyCdioDistributionCounts[bloomToCdioStrMap[b]]++;
+          });
+        });
+        const dummyCdioDistributionData = Object.keys(dummyCdioDistributionCounts).sort().map(k => ({ name: k, count: dummyCdioDistributionCounts[k] }));
 
         const dummyGapCounts: Record<string, { '-': number, '0': number, '+': number }> = {};
         dummyResults.forEach(r => { Object.keys(r.answers).forEach(sid => { const m = sid.split('.')[0]; if (!dummyGapCounts[m]) dummyGapCounts[m] = { '-': 0, '0': 0, '+': 0 }; const qs = r.answers[sid]?.questions; if (qs) Object.values(qs).forEach((v: any) => { if (dummyGapCounts[m][v as keyof typeof dummyGapCounts[typeof m]] !== undefined) dummyGapCounts[m][v as '-' | '0' | '+']++; }); }); });
@@ -771,7 +1002,40 @@ export default function Admin() {
                 </CardContent>
               </Card>
             </Box>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 4 }}>
+            <Box sx={{ mb: 4 }}>
+              <Card className="admin-card">
+                <CardHeader title="CDIO Proficiency Rating Scale (Converted, Dummy)" />
+                <CardContent sx={{ height: 400 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={dummyConvertedProfData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                      <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <RechartsTooltip contentStyle={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-main)' }} />
+                      <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                      <Bar dataKey="Industri" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="Alumni" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="Dosen" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </Box>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr 1fr' }, gap: 4 }}>
+              <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white' }}>
+                <CardHeader title="CDIO Distribution (Dummy)" />
+                <CardContent sx={{ height: 300 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={dummyCdioDistributionData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                      <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <YAxis stroke="var(--text-muted)" allowDecimals={false} tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <RechartsTooltip contentStyle={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-main)' }} />
+                      <Bar dataKey="count" fill="#10b981" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
               <Card sx={{ background: 'rgba(30, 41, 59, 0.7)', color: 'white' }}>
                 <CardHeader title="Bloom Distribution (Dummy)" />
                 <CardContent sx={{ height: 300 }}>
