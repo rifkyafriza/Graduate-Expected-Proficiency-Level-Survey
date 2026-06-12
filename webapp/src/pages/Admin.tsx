@@ -273,6 +273,115 @@ export default function Admin() {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportSummary = () => {
+    // 1. Bloom Data (Expected Proficiency Level)
+    const bloomData = getExpectedProficiencyData();
+    
+    // Compute overall average for Bloom Data
+    const bloomAvgStats: Record<string, { total: number, count: number }> = {};
+    filteredResults.forEach(r => {
+      if (!r.answers) return;
+      const bloomMap: Record<string, number> = { 'C1': 1, 'C2': 2, 'C3': 3, 'C4': 4, 'C5': 5, 'C6': 6 };
+      Object.keys(r.answers).forEach(secId => {
+        if (secId !== 'open_questions') {
+          const bloomStr = r.answers[secId]?.bloom;
+          const bloomVal = bloomStr ? bloomMap[bloomStr] : null;
+          if (bloomVal !== null && bloomVal !== undefined) {
+            let sectionTotalScore = bloomVal;
+            let sectionComponentCount = 1;
+            const qs = r.answers[secId]?.questions;
+            if (qs) {
+              Object.values(qs).forEach((val: any) => {
+                let qScore = bloomVal;
+                if (val === '-') qScore -= 1;
+                else if (val === '+') qScore += 1;
+                qScore = Math.max(1, Math.min(6, qScore));
+                sectionTotalScore += qScore;
+                sectionComponentCount += 1;
+              });
+            }
+            const averageScore = sectionTotalScore / sectionComponentCount;
+            if (!bloomAvgStats[secId]) bloomAvgStats[secId] = { total: 0, count: 0 };
+            bloomAvgStats[secId].total += averageScore;
+            bloomAvgStats[secId].count += 1;
+          }
+        }
+      });
+    });
+
+    const bloomHeaders = ['CDIO Section (Bloom Level 1-6)', 'Industri', 'Alumni Junior', 'Alumni Senior', 'Dosen', 'Rata-rata Keseluruhan'];
+    const bloomRows = bloomData.map(item => {
+      const avgStat = bloomAvgStats[item.name];
+      const rataRata = avgStat && avgStat.count > 0 ? Number((avgStat.total / avgStat.count).toFixed(2)) : 0;
+      return [
+        item.name,
+        item.Industri,
+        item["Alumni Junior"] || 0,
+        item["Alumni Senior"] || 0,
+        item.Dosen,
+        rataRata
+      ].map(String);
+    });
+
+    // 2. CDIO Converted Data
+    const convertedData = getConvertedCdioProficiencyData();
+    const averageData = getAverageConvertedCdioProficiencyData();
+
+    const avgMap: Record<string, number> = {};
+    averageData.forEach(item => {
+      avgMap[item.name] = item["Rata-rata"];
+    });
+
+    const cdioHeaders = ['CDIO Section (CDIO Level 1-5)', 'Industri', 'Alumni Junior', 'Alumni Senior', 'Dosen', 'Rata-rata Keseluruhan'];
+    const cdioRows = convertedData.map(item => [
+      item.name,
+      item.Industri,
+      item["Alumni Junior"] || 0,
+      item["Alumni Senior"] || 0,
+      item.Dosen,
+      avgMap[item.name] || 0
+    ].map(String));
+
+    // 3. Gap Evaluation Data
+    const gapData = getGapDataByItem();
+    const gapHeaders = ['CDIO Item Gap', 'Kurang (Tidak Penting)', 'Normal (Sesuai)', 'Lebih (Penting)'];
+    const gapRows = gapData.map(item => [
+      item.name,
+      item.Kurang,
+      item.Normal,
+      item.Lebih
+    ].map(String));
+
+    let csvContent = bloomHeaders.map(h => `"${h}"`).join(',') + '\n';
+    bloomRows.forEach(row => {
+      csvContent += row.map(v => `"${v}"`).join(',') + '\n';
+    });
+
+    csvContent += '\n\n';
+
+    csvContent += cdioHeaders.map(h => `"${h}"`).join(',') + '\n';
+    cdioRows.forEach(row => {
+      csvContent += row.map(v => `"${v}"`).join(',') + '\n';
+    });
+    
+    csvContent += '\n\n';
+    
+    csvContent += gapHeaders.map(h => `"${h}"`).join(',') + '\n';
+    gapRows.forEach(row => {
+      csvContent += row.map(v => `"${v}"`).join(',') + '\n';
+    });
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `summary_akreditasi_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const handleServerBackup = async () => {
     try {
       // Export all responses as JSON backup download
@@ -550,6 +659,47 @@ export default function Admin() {
     return Object.keys(counts).map(k => ({ name: k, count: counts[k] })).sort((a, b) => a.name.localeCompare(b.name));
   };
 
+  const getGapDataByItem = () => {
+    const itemCounts: Record<string, { '-': number, '0': number, '+': number }> = {};
+    filteredResults.forEach(r => {
+      if (!r.answers) return;
+      Object.keys(r.answers).forEach(secId => {
+        if (secId !== 'open_questions') {
+          const qs = r.answers[secId]?.questions;
+          if (qs) {
+            Object.entries(qs).forEach(([qId, val]: [string, any]) => {
+              if (!itemCounts[qId]) {
+                itemCounts[qId] = { '-': 0, '0': 0, '+': 0 };
+              }
+              const v = val as '-' | '0' | '+';
+              if (itemCounts[qId][v] !== undefined) {
+                itemCounts[qId][v]++;
+              }
+            });
+          }
+        }
+      });
+    });
+
+    return Object.keys(itemCounts)
+      .sort((a, b) => {
+        const aParts = a.split('.').map(Number);
+        const bParts = b.split('.').map(Number);
+        for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+          const aVal = aParts[i] || 0;
+          const bVal = bParts[i] || 0;
+          if (aVal !== bVal) return aVal - bVal;
+        }
+        return a.localeCompare(b);
+      })
+      .map(qId => ({
+        name: qId,
+        Kurang: itemCounts[qId]['-'],
+        Normal: itemCounts[qId]['0'],
+        Lebih: itemCounts[qId]['+'],
+      }));
+  };
+
   const getGapDataByMajorSection = () => {
     const sectionCounts: Record<string, { '-': number, '0': number, '+': number }> = {};
     filteredResults.forEach(r => {
@@ -593,6 +743,7 @@ export default function Admin() {
   const bloomData = getBloomData();
   const cdioDistributionData = getCdioDistributionData();
   const gapDataByMajorSection = getGapDataByMajorSection();
+  const gapDataByItem = getGapDataByItem();
 
   if (!isAuthenticated) {
     return (
@@ -728,6 +879,9 @@ export default function Admin() {
               <Button variant="contained" color="primary" startIcon={<Download size={20} />} onClick={handleExportCSV}>
                 Export to CSV
               </Button>
+              <Button variant="contained" color="success" startIcon={<Download size={20} />} onClick={handleExportSummary}>
+                Export Summary Akreditasi
+              </Button>
             </Box>
           </Box>
 
@@ -750,6 +904,33 @@ export default function Admin() {
                       <Bar dataKey="Alumni Junior" fill="#38bdf8" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="Alumni Senior" fill="#1d4ed8" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="Dosen" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <Typography color="textSecondary" align="center" sx={{ mt: 10 }}>No data available</Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Box>
+
+          <Box sx={{ mb: 4 }}>
+            <Card className="admin-card">
+              <CardHeader title="Gap Evaluation by CDIO Item" />
+              <CardContent sx={{ height: 400 }}>
+                {gapDataByItem.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={gapDataByItem} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                      <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <YAxis stroke="var(--text-muted)" allowDecimals={false} tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <RechartsTooltip
+                        contentStyle={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-main)' }}
+                        cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+                      />
+                      <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                      <Bar dataKey="Kurang" stackId="a" fill={GAP_COLORS['-']} radius={[0, 0, 4, 4]} name="Tidak Penting" />
+                      <Bar dataKey="Normal" stackId="a" fill={GAP_COLORS['0']} name="Normal" />
+                      <Bar dataKey="Lebih" stackId="a" fill={GAP_COLORS['+']} radius={[4, 4, 0, 0]} name="Penting" />
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
@@ -1080,7 +1261,20 @@ export default function Admin() {
 
         const dummyGapCounts: Record<string, { '-': number, '0': number, '+': number }> = {};
         dummyResults.forEach(r => { Object.keys(r.answers).forEach(sid => { const m = sid.split('.')[0]; if (!dummyGapCounts[m]) dummyGapCounts[m] = { '-': 0, '0': 0, '+': 0 }; const qs = r.answers[sid]?.questions; if (qs) Object.values(qs).forEach((v: any) => { if (dummyGapCounts[m][v as keyof typeof dummyGapCounts[typeof m]] !== undefined) dummyGapCounts[m][v as '-' | '0' | '+']++; }); }); });
-        const dummyGapData = Object.keys(dummyGapCounts).sort((a, b) => parseInt(a) - parseInt(b)).map(m => ({ name: `CDIO ${m}`, Kurang: dummyGapCounts[m]['-'], Sesuai: dummyGapCounts[m]['0'], Lebih: dummyGapCounts[m]['+'] }));
+        const dummyGapData = Object.keys(dummyGapCounts).sort((a, b) => parseInt(a) - parseInt(b)).map(m => ({ name: `CDIO ${m}`, Kurang: dummyGapCounts[m]['-'], Normal: dummyGapCounts[m]['0'], Lebih: dummyGapCounts[m]['+'] }));
+
+        const dummyGapCountsByItem: Record<string, { '-': number, '0': number, '+': number }> = {};
+        dummyResults.forEach(r => { Object.keys(r.answers).forEach(sid => { const qs = r.answers[sid]?.questions; if (qs) Object.entries(qs).forEach(([qId, val]: [string, any]) => { if (!dummyGapCountsByItem[qId]) dummyGapCountsByItem[qId] = { '-': 0, '0': 0, '+': 0 }; const v = val as '-' | '0' | '+'; if (dummyGapCountsByItem[qId][v] !== undefined) dummyGapCountsByItem[qId][v]++; }); }); });
+        const dummyGapDataByItem = Object.keys(dummyGapCountsByItem).sort((a, b) => {
+          const aParts = a.split('.').map(Number);
+          const bParts = b.split('.').map(Number);
+          for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+            const aVal = aParts[i] || 0;
+            const bVal = bParts[i] || 0;
+            if (aVal !== bVal) return aVal - bVal;
+          }
+          return a.localeCompare(b);
+        }).map(qId => ({ name: qId, Kurang: dummyGapCountsByItem[qId]['-'], Normal: dummyGapCountsByItem[qId]['0'], Lebih: dummyGapCountsByItem[qId]['+'] }));
 
         return (
           <Box>
@@ -1099,6 +1293,25 @@ export default function Admin() {
                       <Bar dataKey="Industri" fill="#ef4444" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="Alumni" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="Dosen" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </Box>
+            <Box sx={{ mb: 4 }}>
+              <Card className="admin-card">
+                <CardHeader title="Gap Evaluation by CDIO Item (Dummy)" />
+                <CardContent sx={{ height: 400 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={dummyGapDataByItem} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                      <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <YAxis stroke="var(--text-muted)" allowDecimals={false} tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <RechartsTooltip contentStyle={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-main)' }} />
+                      <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                      <Bar dataKey="Kurang" stackId="a" fill={GAP_COLORS['-']} radius={[0, 0, 4, 4]} name="Tidak Penting" />
+                      <Bar dataKey="Normal" stackId="a" fill={GAP_COLORS['0']} name="Normal" />
+                      <Bar dataKey="Lebih" stackId="a" fill={GAP_COLORS['+']} radius={[4, 4, 0, 0]} name="Penting" />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
