@@ -274,6 +274,20 @@ export default function Admin() {
   };
 
   const handleExportSummary = () => {
+    // Map section and question titles for context
+    const sectionTitleMap: Record<string, string> = {};
+    const questionTitleMap: Record<string, string> = {};
+    surveysJsonData.forEach(survey => {
+      survey.sections.forEach(sec => {
+        if (sec.id && sec.title) sectionTitleMap[sec.id] = `${sec.id} ${sec.title}`;
+        if (sec.questions) {
+          sec.questions.forEach(q => {
+            if (q.id && q.text) questionTitleMap[q.id] = `${q.id} ${q.text}`;
+          });
+        }
+      });
+    });
+
     // 1. Bloom Data (Expected Proficiency Level)
     const bloomData = getExpectedProficiencyData();
     
@@ -309,7 +323,7 @@ export default function Admin() {
       });
     });
 
-    const bloomHeaders = ['CDIO Section (Bloom Level 1-6)', 'Industri', 'Alumni Junior', 'Alumni Senior', 'Dosen', 'Rata-rata Keseluruhan'];
+    const bloomHeaders = ['CDIO Section (Bloom Level 1-6)', 'Industri', 'Alumni Junior', 'Alumni Senior', 'Dosen', 'Rata-rata Keseluruhan', 'Konteks'];
     const bloomRows = bloomData.map(item => {
       const avgStat = bloomAvgStats[item.name];
       const rataRata = avgStat && avgStat.count > 0 ? Number((avgStat.total / avgStat.count).toFixed(2)) : 0;
@@ -319,7 +333,8 @@ export default function Admin() {
         item["Alumni Junior"] || 0,
         item["Alumni Senior"] || 0,
         item.Dosen,
-        rataRata
+        rataRata,
+        sectionTitleMap[item.name] || item.name
       ].map(String);
     });
 
@@ -332,24 +347,26 @@ export default function Admin() {
       avgMap[item.name] = item["Rata-rata"];
     });
 
-    const cdioHeaders = ['CDIO Section (CDIO Level 1-5)', 'Industri', 'Alumni Junior', 'Alumni Senior', 'Dosen', 'Rata-rata Keseluruhan'];
+    const cdioHeaders = ['CDIO Section (CDIO Level 1-5)', 'Industri', 'Alumni Junior', 'Alumni Senior', 'Dosen', 'Rata-rata Keseluruhan', 'Konteks'];
     const cdioRows = convertedData.map(item => [
       item.name,
       item.Industri,
       item["Alumni Junior"] || 0,
       item["Alumni Senior"] || 0,
       item.Dosen,
-      avgMap[item.name] || 0
+      avgMap[item.name] || 0,
+      sectionTitleMap[item.name] || item.name
     ].map(String));
 
     // 3. Gap Evaluation Data
     const gapData = getGapDataByItem();
-    const gapHeaders = ['CDIO Item Gap', 'Kurang (Tidak Penting)', 'Normal (Sesuai)', 'Lebih (Penting)'];
+    const gapHeaders = ['CDIO Item Gap', 'Kurang (Tidak Penting)', 'Normal (Sesuai)', 'Lebih (Penting)', 'Konteks'];
     const gapRows = gapData.map(item => [
       item.name,
       item.Kurang,
       item.Normal,
-      item.Lebih
+      item.Lebih,
+      questionTitleMap[item.name] || item.name
     ].map(String));
 
     let csvContent = bloomHeaders.map(h => `"${h}"`).join(',') + '\n';
