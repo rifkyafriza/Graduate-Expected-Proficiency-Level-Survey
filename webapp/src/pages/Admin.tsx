@@ -10,7 +10,7 @@ import surveysJsonData from '../data/surveys.json';
 import { supabase } from '../lib/supabase';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
-  ResponsiveContainer, Legend
+  ResponsiveContainer, Legend, Cell
 } from 'recharts';
 
 interface ResponseData {
@@ -22,6 +22,7 @@ interface ResponseData {
 }
 
 const GAP_COLORS = { '-': '#ef4444', '0': '#3b82f6', '+': '#10b981' };
+const BAR_COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899', '#f97316', '#6366f1', '#14b8a6', '#f43f5e', '#84cc16'];
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -222,7 +223,7 @@ export default function Admin() {
       allSectionIds.forEach(secId => {
         const secAnswer = r.answers?.[secId];
         const baseLevelStr = secAnswer?.bloom || '';
-        
+
         if (exportFormat === 'bloom') {
           dynamicValues.push(escapeCSV(baseLevelStr));
           const qIds = allQuestionIds.get(secId) || [];
@@ -233,10 +234,10 @@ export default function Admin() {
           // Export CDIO
           const exportBaseLevelStr = baseLevelStr ? (bloomToCdioMap[baseLevelStr] || baseLevelStr) : baseLevelStr;
           dynamicValues.push(escapeCSV(exportBaseLevelStr));
-          
+
           const baseBloomVal = baseLevelStr ? bloomMap[baseLevelStr] : null;
           const qIds = allQuestionIds.get(secId) || [];
-          
+
           qIds.forEach(qId => {
             const gapVal = secAnswer?.questions?.[qId];
             if (baseBloomVal !== null && baseBloomVal !== undefined && gapVal) {
@@ -423,8 +424,8 @@ export default function Admin() {
                 sectionComponentCount += 1;
               });
             } else {
-               sectionTotalScore += cdioMap[bloomVal];
-               sectionComponentCount += 1;
+              sectionTotalScore += cdioMap[bloomVal];
+              sectionComponentCount += 1;
             }
 
             const averageScore = sectionTotalScore / sectionComponentCount;
@@ -450,6 +451,67 @@ export default function Admin() {
       });
       return row;
     }).sort((a, b) => {
+      const [a1, a2] = a.name.split('.').map(Number);
+      const [b1, b2] = b.name.split('.').map(Number);
+      if (a1 !== b1) return a1 - b1;
+      return (a2 || 0) - (b2 || 0);
+    });
+  };
+
+  const getAverageConvertedCdioProficiencyData = () => {
+    const bloomMap: Record<string, number> = {
+      'C1': 1, 'C2': 2, 'C3': 3, 'C4': 4, 'C5': 5, 'C6': 6
+    };
+    const cdioMap: Record<number, number> = {
+      1: 2, 2: 3, 3: 4, 4: 4, 5: 5, 6: 5
+    };
+
+    const sectionStats: Record<string, any> = {};
+
+    filteredResults.forEach(r => {
+      const group = getDetailedCategory(r);
+      if (!group || !r.answers) return;
+
+      Object.keys(r.answers).forEach(secId => {
+        if (secId !== 'open_questions') {
+          const bloomStr = r.answers[secId]?.bloom;
+          const bloomVal = bloomStr ? bloomMap[bloomStr] : null;
+
+          if (bloomVal !== null && bloomVal !== undefined) {
+            let sectionTotalScore = 0;
+            let sectionComponentCount = 0;
+
+            const qs = r.answers[secId]?.questions;
+            if (qs && Object.keys(qs).length > 0) {
+              Object.values(qs).forEach((val: any) => {
+                let qScore = bloomVal;
+                if (val === '-') qScore -= 1;
+                else if (val === '+') qScore += 1;
+                qScore = Math.max(1, Math.min(6, qScore));
+                sectionTotalScore += cdioMap[qScore];
+                sectionComponentCount += 1;
+              });
+            } else {
+              sectionTotalScore += cdioMap[bloomVal];
+              sectionComponentCount += 1;
+            }
+
+            const averageScore = sectionTotalScore / sectionComponentCount;
+
+            if (!sectionStats[secId]) {
+              sectionStats[secId] = { name: secId, totalSum: 0, count: 0 };
+            }
+            sectionStats[secId].totalSum += averageScore;
+            sectionStats[secId].count += 1;
+          }
+        }
+      });
+    });
+
+    return Object.values(sectionStats).map((stat: any) => ({
+      name: stat.name,
+      "Rata-rata": stat.count > 0 ? Number((stat.totalSum / stat.count).toFixed(2)) : 0
+    })).sort((a, b) => {
       const [a1, a2] = a.name.split('.').map(Number);
       const [b1, b2] = b.name.split('.').map(Number);
       if (a1 !== b1) return a1 - b1;
@@ -527,6 +589,7 @@ export default function Admin() {
 
   const expectedProficiencyData = getExpectedProficiencyData();
   const convertedCdioProficiencyData = getConvertedCdioProficiencyData();
+  const averageConvertedCdioProficiencyData = getAverageConvertedCdioProficiencyData();
   const bloomData = getBloomData();
   const cdioDistributionData = getCdioDistributionData();
   const gapDataByMajorSection = getGapDataByMajorSection();
@@ -670,7 +733,7 @@ export default function Admin() {
 
           <Box sx={{ mb: 4 }}>
             <Card className="admin-card">
-              <CardHeader title="Expected Proficiency Level by CDIO" />
+              <CardHeader title="Expected Bloom Proficiency Level by CDIO" />
               <CardContent sx={{ height: 400 }}>
                 {expectedProficiencyData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
@@ -715,6 +778,36 @@ export default function Admin() {
                       <Bar dataKey="Alumni Junior" fill="#38bdf8" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="Alumni Senior" fill="#1d4ed8" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="Dosen" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <Typography color="textSecondary" align="center" sx={{ mt: 10 }}>No data available</Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Box>
+
+          <Box sx={{ mb: 4 }}>
+            <Card className="admin-card">
+              <CardHeader title="Rata-rata Keseluruhan CDIO Proficiency Rating Scale (Converted)" />
+              <CardContent sx={{ height: 400 }}>
+                {averageConvertedCdioProficiencyData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={averageConvertedCdioProficiencyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                      <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <RechartsTooltip
+                        contentStyle={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-main)' }}
+                        cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+                      />
+                      <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                      <Bar dataKey="Rata-rata" radius={[4, 4, 0, 0]}>
+                        {averageConvertedCdioProficiencyData.map((entry, index) => {
+                          const majorCategory = parseInt(entry.name.split('.')[0]) - 1;
+                          return <Cell key={`cell-${index}`} fill={BAR_COLORS[Math.max(0, majorCategory) % BAR_COLORS.length]} />;
+                        })}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
@@ -936,17 +1029,17 @@ export default function Admin() {
               const qs = r.answers[secId]?.questions;
               const cdioMap: Record<number, number> = { 1: 2, 2: 3, 3: 4, 4: 4, 5: 5, 6: 5 };
               if (qs && Object.keys(qs).length > 0) {
-                 Object.values(qs).forEach((v: any) => { 
-                    let s = bloomVal; 
-                    if (v === '-') s -= 1; 
-                    else if (v === '+') s += 1; 
-                    s = Math.max(1, Math.min(6, s)); 
-                    total += cdioMap[s]; 
-                    count++; 
-                 });
+                Object.values(qs).forEach((v: any) => {
+                  let s = bloomVal;
+                  if (v === '-') s -= 1;
+                  else if (v === '+') s += 1;
+                  s = Math.max(1, Math.min(6, s));
+                  total += cdioMap[s];
+                  count++;
+                });
               } else {
-                 total += cdioMap[bloomVal];
-                 count++;
+                total += cdioMap[bloomVal];
+                count++;
               }
               const avg = total / count;
               if (!dummyConvertedSectionStats[secId]) dummyConvertedSectionStats[secId] = { name: secId, IndustriSum: 0, IndustriCount: 0, AlumniSum: 0, AlumniCount: 0, DosenSum: 0, DosenCount: 0 };
@@ -961,6 +1054,15 @@ export default function Admin() {
           Alumni: s.AlumniCount > 0 ? Number((s.AlumniSum / s.AlumniCount).toFixed(2)) : 0,
           Dosen: s.DosenCount > 0 ? Number((s.DosenSum / s.DosenCount).toFixed(2)) : 0,
         })).sort((a, b) => { const [a1, a2] = a.name.split('.').map(Number); const [b1, b2] = b.name.split('.').map(Number); return a1 !== b1 ? a1 - b1 : (a2 || 0) - (b2 || 0); });
+
+        const dummyAverageConvertedProfData = Object.values(dummyConvertedSectionStats).map((s: any) => {
+          const totalSum = s.IndustriSum + s.AlumniSum + s.DosenSum;
+          const totalCount = s.IndustriCount + s.AlumniCount + s.DosenCount;
+          return {
+            name: s.name,
+            "Rata-rata": totalCount > 0 ? Number((totalSum / totalCount).toFixed(2)) : 0
+          };
+        }).sort((a, b) => { const [a1, a2] = a.name.split('.').map(Number); const [b1, b2] = b.name.split('.').map(Number); return a1 !== b1 ? a1 - b1 : (a2 || 0) - (b2 || 0); });
 
         const dummyBloomCounts: Record<string, number> = {};
         dummyResults.forEach(r => { Object.keys(r.answers).forEach(sid => { const b = r.answers[sid]?.bloom; if (b) dummyBloomCounts[b] = (dummyBloomCounts[b] || 0) + 1; }); });
@@ -985,7 +1087,7 @@ export default function Admin() {
             <Typography variant="h6" sx={{ color: 'var(--text-main)', mb: 2 }}>Dummy Data Visualization (50 responses)</Typography>
             <Box sx={{ mb: 4 }}>
               <Card className="admin-card">
-                <CardHeader title="Expected Proficiency Level by CDIO (Dummy)" />
+                <CardHeader title="Expected Bloom Proficiency Level by CDIO (Dummy)" />
                 <CardContent sx={{ height: 400 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={dummyProfData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -1016,6 +1118,28 @@ export default function Admin() {
                       <Bar dataKey="Industri" fill="#ef4444" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="Alumni" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="Dosen" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </Box>
+            <Box sx={{ mb: 4 }}>
+              <Card className="admin-card">
+                <CardHeader title="Rata-rata Keseluruhan CDIO Proficiency Rating Scale (Converted, Dummy)" />
+                <CardContent sx={{ height: 400 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={dummyAverageConvertedProfData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                      <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                      <RechartsTooltip contentStyle={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-main)' }} />
+                      <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                      <Bar dataKey="Rata-rata" radius={[4, 4, 0, 0]}>
+                        {dummyAverageConvertedProfData.map((entry, index) => {
+                          const majorCategory = parseInt(entry.name.split('.')[0]) - 1;
+                          return <Cell key={`cell-${index}`} fill={BAR_COLORS[Math.max(0, majorCategory) % BAR_COLORS.length]} />;
+                        })}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
